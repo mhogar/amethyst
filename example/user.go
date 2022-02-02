@@ -1,46 +1,23 @@
 package example
 
-import (
-	"errors"
+import "github.com/amethyst/validator"
 
-	"github.com/amethyst/model"
-)
+type User struct {
+	Username string
+}
 
-func User() model.Model {
-	return model.Model{
-		"username": {
-			DataType: "varstr(30)",
-			Validators: []model.Validator{
-				model.LengthValidator{
-					Min: 5,
-					Max: 30,
-				},
-			},
-		},
-		"password_hash": {
-			Validators: []model.Validator{
-				model.LengthValidator{
-					Min: 8,
-				},
-			},
-			Converter: PasswordHashConverter{},
-		},
+func CreateNewUser(username string) *User {
+	return &User{
+		Username: username,
 	}
 }
 
-type PasswordHashConverter struct{}
+type UserValidator struct {
+	validator.BaseValidator
+}
 
-func (PasswordHashConverter) Convert(val interface{}) (*model.Field, error) {
-	str, ok := val.(string)
-	if !ok {
-		return nil, errors.New("value is not a string")
-	}
+func (v *UserValidator) Validate(val interface{}) {
+	user := val.(*User)
 
-	//TODO: actually hash password
-	hash := []byte(str)
-
-	return &model.Field{
-		DataType: "bytes",
-		Value:    hash,
-	}, nil
+	v.ValidateLength("username", user.Username, 5, 30)
 }

@@ -4,11 +4,13 @@ import "github.com/amethyst/validator"
 
 type User struct {
 	Username string
+	Password string
 }
 
-func CreateNewUser(username string) *User {
+func CreateNewUser(username string, password string) *User {
 	return &User{
 		Username: username,
+		Password: password,
 	}
 }
 
@@ -19,5 +21,8 @@ type UserValidator struct {
 func (v UserValidator) Validate(val interface{}) *validator.ValidationErrors {
 	user := val.(*User)
 
-	return v.ValidateLength("username", user.Username, 5, 30)
+	verrs := v.ValidateLength("username", user.Username, 5, 30)
+	verrs.Merge(v.ValidatePassword("password", user.Password, 8, 0, true, true))
+
+	return verrs
 }

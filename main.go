@@ -13,15 +13,14 @@ func main() {
 		Validator: &example.UserValidator{},
 	})
 
-	usernames := []string{
-		"aaaa",
-		"aaaaaaaaaa",
-		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	users := []*example.User{
+		example.CreateNewUser("aaaaaaaaaa", "abc"),
+		example.CreateNewUser("aaaaaaaaaa", "abcdefgdfgds"),
 	}
 
-	for _, name := range usernames {
-		fmt.Printf("%s:\n", name)
-		p.Run(example.CreateNewUser(name))
+	for _, user := range users {
+		fmt.Printf("%s:\n", user.Password)
+		p.Run(user)
 		fmt.Println()
 	}
 }

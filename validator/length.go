@@ -9,9 +9,9 @@ func (BaseValidator) ValidateLength(field string, val interface{}, minLen int, m
 	len := reflect.ValueOf(val).Len()
 	verrs := CreateNewValidationErrors()
 
-	if len < minLen {
+	if minLen > 0 && len < minLen {
 		verrs.Add(field, fmt.Sprintf("shorter than min length %d", minLen))
-	} else if len > maxLen {
+	} else if maxLen > 0 && len > maxLen {
 		verrs.Add(field, fmt.Sprintf("longer than max length %d", maxLen))
 	}
 

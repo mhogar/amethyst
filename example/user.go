@@ -16,8 +16,8 @@ type UserValidator struct {
 	validator.BaseValidator
 }
 
-func (v *UserValidator) Validate(val interface{}) {
+func (v UserValidator) Validate(val interface{}) *validator.ValidationErrors {
 	user := val.(*User)
 
-	v.ValidateLength("username", user.Username, 5, 30)
+	return v.ValidateLength("username", user.Username, 5, 30)
 }

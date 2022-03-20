@@ -1,8 +1,8 @@
 package example
 
 import (
-	"github.com/amethyst/converter"
-	"github.com/amethyst/validator"
+	"github.com/mhogar/kiwi/converter"
+	"github.com/mhogar/kiwi/validator"
 )
 
 type UserInput struct {

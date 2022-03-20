@@ -1,7 +1,7 @@
 package nodes
 
 import (
-	"github.com/amethyst/converter"
+	"github.com/mhogar/kiwi/converter"
 )
 
 type ConverterNode struct {

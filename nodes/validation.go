@@ -3,7 +3,7 @@ package nodes
 import (
 	"fmt"
 
-	"github.com/amethyst/validator"
+	"github.com/mhogar/kiwi/validator"
 )
 
 type ValidationNode struct {

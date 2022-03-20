@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/amethyst/example"
-	"github.com/amethyst/nodes"
+	"github.com/mhogar/kiwi/example"
+	"github.com/mhogar/kiwi/nodes"
 )
 
 func main() {

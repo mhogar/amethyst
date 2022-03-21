@@ -8,17 +8,14 @@ import (
 )
 
 func main() {
-	p := nodes.Pipeline{}
-	p.Build(
-		nodes.ValidationNode{
-			Validator: example.UserValidator{},
-		},
-		nodes.ConverterNode{
-			Converter: example.UserConverter{},
-		},
+	f := nodes.NodeFactory{}
+
+	w := f.Workflow(
+		f.Validation(example.UserValidator{}),
+		f.Converter(example.UserConverter{}),
 	)
 
-	fmt.Println(p.Run(
+	fmt.Println(w.Run(
 		example.CreateNewUserInput("username", "Password123!"),
 	))
 }

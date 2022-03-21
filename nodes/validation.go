@@ -10,6 +10,12 @@ type ValidationNode struct {
 	Validator validator.Validator
 }
 
+func (f NodeFactory) Validation(v validator.Validator) ValidationNode {
+	return ValidationNode{
+		Validator: v,
+	}
+}
+
 func (n ValidationNode) Run(input interface{}) interface{} {
 	verrs := n.Validator.Validate(input)
 

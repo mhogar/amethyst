@@ -16,11 +16,16 @@ func GetHandle[T any](da adapter.DataAdapter) Handle[T] {
 }
 
 func (h Handle[T]) Create(model *T) error {
-	return h.Adapter.Insert(model)
+	rm := adapter.CreateReflectModel[T]()
+	rm.SetModel(&model)
+
+	return h.Adapter.Insert(rm)
 }
 
 func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
-	itr, err := h.Adapter.Select(where)
+	rm := adapter.CreateReflectModel[T]()
+
+	itr, err := h.Adapter.Select(rm, where)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +43,7 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 			break
 		}
 
-		model, err := h.readModel(itr)
+		model, err := h.readModel(itr, rm)
 		if err != nil {
 			return nil, err
 		}
@@ -49,17 +54,24 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 }
 
 func (h Handle[T]) Update(model *T) (bool, error) {
-	return h.Adapter.Update(model)
+	rm := adapter.CreateReflectModel[T]()
+	rm.SetModel(&model)
+
+	return h.Adapter.Update(rm)
 }
 
 func (h Handle[T]) Delete(model *T) (bool, error) {
-	return h.Adapter.Delete(model)
+	rm := adapter.CreateReflectModel[T]()
+	rm.SetModel(&model)
+
+	return h.Adapter.Delete(rm)
 }
 
-func (h Handle[T]) readModel(itr adapter.DataIterator) (*T, error) {
+func (h Handle[T]) readModel(itr adapter.DataIterator, rm adapter.ReflectModel) (*T, error) {
 	var model T
+	rm.SetModel(&model)
 
-	err := itr.Read(&model)
+	err := itr.Read(rm)
 	if err != nil {
 		return nil, err
 	}

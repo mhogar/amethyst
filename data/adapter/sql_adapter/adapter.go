@@ -14,7 +14,7 @@ type SqlAdapter struct {
 	ContextFactory data.ContextFactory
 }
 
-func (a SqlAdapter) Select(where *query.WhereClause) (adapter.DataIterator, error) {
+func (a SqlAdapter) Select(model adapter.ReflectModel, where *query.WhereClause) (adapter.DataIterator, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := a.DB.QueryContext(ctx, "SELECT ...") //TODO: implement select
 	defer cancel()
@@ -28,7 +28,7 @@ func (a SqlAdapter) Select(where *query.WhereClause) (adapter.DataIterator, erro
 	}, nil
 }
 
-func (a SqlAdapter) Insert(model interface{}) error {
+func (a SqlAdapter) Insert(model adapter.ReflectModel) error {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
 	_, err := a.DB.ExecContext(ctx, "INSERT ...") //TODO: implement insert
 	defer cancel()
@@ -39,7 +39,7 @@ func (a SqlAdapter) Insert(model interface{}) error {
 	return nil
 }
 
-func (a SqlAdapter) Update(model interface{}) (bool, error) {
+func (a SqlAdapter) Update(model adapter.ReflectModel) (bool, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
 	res, err := a.DB.ExecContext(ctx, "UPDATE ...") //TODO: implement update
 	defer cancel()
@@ -52,7 +52,7 @@ func (a SqlAdapter) Update(model interface{}) (bool, error) {
 	return count > 0, nil
 }
 
-func (a SqlAdapter) Delete(model interface{}) (bool, error) {
+func (a SqlAdapter) Delete(model adapter.ReflectModel) (bool, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
 	res, err := a.DB.ExecContext(ctx, "DELETE ...") //TODO: implement delete
 	defer cancel()

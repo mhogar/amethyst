@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/mhogar/kiwi/common"
+	"github.com/mhogar/kiwi/data/adapter"
 )
 
 type RowsIterator struct {
@@ -21,9 +22,8 @@ func (itr *RowsIterator) Next() (bool, error) {
 	return true, nil
 }
 
-func (itr *RowsIterator) Read(model interface{}) error {
-	//TODO: scan into model
-	err := itr.Rows.Scan()
+func (itr *RowsIterator) Read(model adapter.ReflectModel) error {
+	err := itr.Rows.Scan(model.Addresses...)
 
 	if err != nil {
 		return common.ChainError("error reading row", err)

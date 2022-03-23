@@ -12,11 +12,12 @@ import (
 type SqlAdapter struct {
 	DB             *sql.DB
 	ContextFactory data.ContextFactory
+	ScriptBuilder  ScriptBuilder
 }
 
 func (a SqlAdapter) Select(model adapter.ReflectModel, where *query.WhereClause) (adapter.DataIterator, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := a.DB.QueryContext(ctx, "SELECT ...") //TODO: implement select
+	rows, err := a.DB.QueryContext(ctx, a.ScriptBuilder.BuildSelectQuery(model, where))
 	defer cancel()
 
 	if err != nil {
@@ -30,7 +31,7 @@ func (a SqlAdapter) Select(model adapter.ReflectModel, where *query.WhereClause)
 
 func (a SqlAdapter) Insert(model adapter.ReflectModel) error {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	_, err := a.DB.ExecContext(ctx, "INSERT ...") //TODO: implement insert
+	_, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildInsertStatement(model), model.Values...)
 	defer cancel()
 
 	if err != nil {
@@ -41,7 +42,7 @@ func (a SqlAdapter) Insert(model adapter.ReflectModel) error {
 
 func (a SqlAdapter) Update(model adapter.ReflectModel) (bool, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	res, err := a.DB.ExecContext(ctx, "UPDATE ...") //TODO: implement update
+	res, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildUpdateStatement(model), model.Values...)
 	defer cancel()
 
 	if err != nil {
@@ -54,7 +55,7 @@ func (a SqlAdapter) Update(model adapter.ReflectModel) (bool, error) {
 
 func (a SqlAdapter) Delete(model adapter.ReflectModel) (bool, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	res, err := a.DB.ExecContext(ctx, "DELETE ...") //TODO: implement delete
+	res, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildDeleteStatement(model), model.UniqueValue())
 	defer cancel()
 
 	if err != nil {

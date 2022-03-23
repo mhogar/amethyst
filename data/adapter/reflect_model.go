@@ -1,6 +1,8 @@
 package adapter
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type ReflectModel struct {
 	fields map[string]int
@@ -16,6 +18,7 @@ func CreateReflectModel[T any]() ReflectModel {
 
 	var model T
 	st := reflect.TypeOf(model)
+	rm.Name = st.Name()
 
 	for i := 0; i < st.NumField(); i++ {
 		tag := st.Field(i).Tag.Get("kiwi")
@@ -26,6 +29,14 @@ func CreateReflectModel[T any]() ReflectModel {
 	}
 
 	return rm
+}
+
+func (rm *ReflectModel) UniqueField() string {
+	return rm.Fields[0]
+}
+
+func (rm *ReflectModel) UniqueValue() interface{} {
+	return rm.Values[0]
 }
 
 func (rm *ReflectModel) SetModel(model interface{}) {

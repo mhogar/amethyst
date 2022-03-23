@@ -18,8 +18,9 @@ func CreateNewUserInput(username string, password string) *UserInput {
 }
 
 type User struct {
-	Username     string
-	PasswordHash []byte
+	Username     string `kiwi:"username"`
+	Rank         int    `kiwi:"rank"`
+	PasswordHash []byte `kiwi:"password_hash"`
 }
 
 func CreateNewUser(username string, hash []byte) *User {

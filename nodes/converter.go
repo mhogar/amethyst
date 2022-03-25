@@ -14,6 +14,6 @@ func (f NodeFactory[T]) Converter(c converter.Converter[T]) ConverterNode[T] {
 	}
 }
 
-func (n ConverterNode[T]) Run(ctx T, input interface{}) interface{} {
-	return n.Converter.Convert(ctx, input)
+func (n ConverterNode[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
+	return n.Converter.Convert(ctx, input), nil
 }

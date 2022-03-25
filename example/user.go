@@ -56,11 +56,14 @@ func (c UserConverter) Convert(_ nodes.BaseContext, val interface{}) interface{}
 
 type CreateUserNode struct{}
 
-func (CreateUserNode) Run(ctx nodes.BaseContext, input interface{}) interface{} {
+func (CreateUserNode) Run(ctx nodes.BaseContext, input interface{}) (interface{}, *nodes.Error) {
 	user := input.(*User)
-
 	handle := data.GetHandle[User](ctx.Adapter)
-	handle.Create(user)
 
-	return nil
+	err := handle.Create(user)
+	if err != nil {
+		return nil, nodes.InternalError(err)
+	}
+
+	return user, nil
 }

@@ -1,8 +1,6 @@
 package nodes
 
 import (
-	"fmt"
-
 	"github.com/mhogar/kiwi/nodes/validator"
 )
 
@@ -16,12 +14,12 @@ func (f NodeFactory[T]) Validation(v validator.Validator[T]) ValidationNode[T] {
 	}
 }
 
-func (n ValidationNode[T]) Run(ctx T, input interface{}) interface{} {
+func (n ValidationNode[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
 	verrs := n.Validator.Validate(ctx, input)
 
 	if verrs.HasErrors() {
-		fmt.Println(verrs.Messages)
+		return nil, ClientError(verrs.Errors()...)
 	}
 
-	return input
+	return input, nil
 }

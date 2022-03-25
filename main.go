@@ -21,7 +21,11 @@ func main() {
 		Adapter: &sqladapter.SqlAdapter{},
 	}
 
-	fmt.Println(w.Run(ctx,
-		example.CreateNewUserInput("username", "Password123!"),
-	))
+	_, err := w.Run(
+		ctx, example.CreateNewUserInput("username", "Password123"),
+	)
+
+	if err != nil {
+		fmt.Println(err.Errors)
+	}
 }

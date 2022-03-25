@@ -7,7 +7,7 @@ import (
 
 func (BaseValidator) ValidateLength(field string, val interface{}, minLen int, maxLen int) *ValidationErrors {
 	len := reflect.ValueOf(val).Len()
-	verrs := CreateNewValidationErrors()
+	verrs := &ValidationErrors{}
 
 	if minLen > 0 && len < minLen {
 		verrs.Add(field, fmt.Sprintf("shorter than min length %d", minLen))

@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"github.com/mhogar/kiwi/common"
 	"github.com/mhogar/kiwi/nodes/converter"
 )
 
@@ -15,5 +16,10 @@ func (f NodeFactory[T]) Converter(c converter.Converter[T]) ConverterNode[T] {
 }
 
 func (n ConverterNode[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
-	return n.Converter.Convert(ctx, input), nil
+	output, err := n.Converter.Convert(ctx, input)
+	if err != nil {
+		return nil, InternalError(common.ChainError("error converting model", err))
+	}
+
+	return output, nil
 }

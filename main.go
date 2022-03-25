@@ -1,30 +1,27 @@
 package main
 
 import (
-	"github.com/mhogar/kiwi/data"
+	"fmt"
+
 	sqladapter "github.com/mhogar/kiwi/data/adapter/sql_adapter"
-	"github.com/mhogar/kiwi/data/query"
 	"github.com/mhogar/kiwi/example"
+	"github.com/mhogar/kiwi/nodes"
 )
 
 func main() {
-	// f := nodes.NodeFactory{}
+	f := nodes.NodeFactory[nodes.BaseContext]{}
 
-	// w := f.Workflow(
-	// 	f.Validation(example.UserValidator{}),
-	// 	f.Converter(example.UserConverter{}),
-	// )
-
-	// fmt.Println(w.Run(
-	// 	example.CreateNewUserInput("username", "Password123!"),
-	// ))
-
-	adapter := &sqladapter.SqlAdapter{}
-	handle := data.GetHandle[example.User](adapter)
-
-	users, _ := handle.Read(
-		query.Where("username", "=", "username").And(query.Where("rank", ">", 0)),
+	w := f.Workflow(
+		f.Validation(example.UserValidator{}),
+		f.Converter(example.UserConverter{}),
+		example.CreateUserNode{},
 	)
 
-	println(users[0].Username)
+	ctx := nodes.BaseContext{
+		Adapter: &sqladapter.SqlAdapter{},
+	}
+
+	fmt.Println(w.Run(ctx,
+		example.CreateNewUserInput("username", "Password123!"),
+	))
 }

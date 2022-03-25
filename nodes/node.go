@@ -1,7 +1,7 @@
 package nodes
 
-type Node interface {
-	Run(input interface{}) interface{}
+type Node[T any] interface {
+	Run(ctx T, input interface{}) interface{}
 }
 
-type NodeFactory struct{}
+type NodeFactory[T any] struct{}

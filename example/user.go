@@ -1,8 +1,10 @@
 package example
 
 import (
-	"github.com/mhogar/kiwi/converter"
-	"github.com/mhogar/kiwi/validator"
+	"github.com/mhogar/kiwi/data"
+	"github.com/mhogar/kiwi/nodes"
+	"github.com/mhogar/kiwi/nodes/converter"
+	"github.com/mhogar/kiwi/nodes/validator"
 )
 
 type UserInput struct {
@@ -34,7 +36,7 @@ type UserValidator struct {
 	validator.BaseValidator
 }
 
-func (v UserValidator) Validate(val interface{}) *validator.ValidationErrors {
+func (v UserValidator) Validate(_ nodes.BaseContext, val interface{}) *validator.ValidationErrors {
 	user := val.(*UserInput)
 
 	verrs := v.ValidateLength("username", user.Username, 5, 30)
@@ -47,7 +49,18 @@ type UserConverter struct {
 	converter.BaseConverter
 }
 
-func (c UserConverter) Convert(val interface{}) interface{} {
+func (c UserConverter) Convert(_ nodes.BaseContext, val interface{}) interface{} {
 	user := val.(*UserInput)
 	return CreateNewUser(user.Username, c.HashPassword(user.Password))
+}
+
+type CreateUserNode struct{}
+
+func (CreateUserNode) Run(ctx nodes.BaseContext, input interface{}) interface{} {
+	user := input.(*User)
+
+	handle := data.GetHandle[User](ctx.Adapter)
+	handle.Create(user)
+
+	return nil
 }

@@ -1,19 +1,19 @@
 package nodes
 
 import (
-	"github.com/mhogar/kiwi/converter"
+	"github.com/mhogar/kiwi/nodes/converter"
 )
 
-type ConverterNode struct {
-	Converter converter.Converter
+type ConverterNode[T any] struct {
+	Converter converter.Converter[T]
 }
 
-func (f NodeFactory) Converter(c converter.Converter) ConverterNode {
-	return ConverterNode{
+func (f NodeFactory[T]) Converter(c converter.Converter[T]) ConverterNode[T] {
+	return ConverterNode[T]{
 		Converter: c,
 	}
 }
 
-func (n ConverterNode) Run(input interface{}) interface{} {
-	return n.Converter.Convert(input)
+func (n ConverterNode[T]) Run(ctx T, input interface{}) interface{} {
+	return n.Converter.Convert(ctx, input)
 }

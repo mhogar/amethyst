@@ -11,6 +11,12 @@ type DataIterator interface {
 }
 
 type DataAdapter interface {
+	// Setup sets up the adapter and returns any errors.
+	Setup() error
+
+	// CleanUp cleans up the adapter and returns any errors.
+	CleanUp() error
+
 	Select(model ReflectModel, where *query.WhereClause) (DataIterator, error)
 	Insert(model ReflectModel) error
 	Update(model ReflectModel) (bool, error)

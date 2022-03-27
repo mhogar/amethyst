@@ -1,23 +1,16 @@
 package sqladapter
 
 import (
-	"database/sql"
-
 	"github.com/mhogar/kiwi/common"
-	"github.com/mhogar/kiwi/data"
 	"github.com/mhogar/kiwi/data/adapter"
 	"github.com/mhogar/kiwi/data/query"
 )
 
-type SqlAdapter struct {
-	DB             *sql.DB
-	ContextFactory data.ContextFactory
-	ScriptBuilder  ScriptBuilder
-}
+func (a *SQLAdapter) Select(model adapter.ReflectModel, where *query.WhereClause) (adapter.DataIterator, error) {
+	script := a.SQLDriver.BuildSelectQuery(model, where)
 
-func (a SqlAdapter) Select(model adapter.ReflectModel, where *query.WhereClause) (adapter.DataIterator, error) {
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := a.DB.QueryContext(ctx, a.ScriptBuilder.BuildSelectQuery(model, where))
+	rows, err := a.DB.QueryContext(ctx, script)
 	defer cancel()
 
 	if err != nil {
@@ -29,9 +22,11 @@ func (a SqlAdapter) Select(model adapter.ReflectModel, where *query.WhereClause)
 	}, nil
 }
 
-func (a SqlAdapter) Insert(model adapter.ReflectModel) error {
+func (a *SQLAdapter) Insert(model adapter.ReflectModel) error {
+	script := a.SQLDriver.BuildInsertStatement(model)
+
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	_, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildInsertStatement(model), model.Values...)
+	_, err := a.DB.ExecContext(ctx, script, model.Values...)
 	defer cancel()
 
 	if err != nil {
@@ -40,9 +35,11 @@ func (a SqlAdapter) Insert(model adapter.ReflectModel) error {
 	return nil
 }
 
-func (a SqlAdapter) Update(model adapter.ReflectModel) (bool, error) {
+func (a *SQLAdapter) Update(model adapter.ReflectModel) (bool, error) {
+	script := a.SQLDriver.BuildUpdateStatement(model)
+
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	res, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildUpdateStatement(model), model.Values...)
+	res, err := a.DB.ExecContext(ctx, script, model.Values...)
 	defer cancel()
 
 	if err != nil {
@@ -53,9 +50,11 @@ func (a SqlAdapter) Update(model adapter.ReflectModel) (bool, error) {
 	return count > 0, nil
 }
 
-func (a SqlAdapter) Delete(model adapter.ReflectModel) (bool, error) {
+func (a *SQLAdapter) Delete(model adapter.ReflectModel) (bool, error) {
+	script := a.SQLDriver.BuildDeleteStatement(model)
+
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	res, err := a.DB.ExecContext(ctx, a.ScriptBuilder.BuildDeleteStatement(model), model.UniqueValue())
+	res, err := a.DB.ExecContext(ctx, script, model.UniqueValue())
 	defer cancel()
 
 	if err != nil {

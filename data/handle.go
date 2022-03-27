@@ -17,7 +17,7 @@ func GetHandle[T any](da adapter.DataAdapter) Handle[T] {
 
 func (h Handle[T]) Create(model *T) error {
 	rm := adapter.CreateReflectModel[T]()
-	rm.SetModel(&model)
+	rm.SetModel(model)
 
 	return h.Adapter.Insert(rm)
 }

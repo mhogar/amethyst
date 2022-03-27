@@ -14,7 +14,9 @@ type ReflectModel struct {
 }
 
 func CreateReflectModel[T any]() ReflectModel {
-	rm := ReflectModel{}
+	rm := ReflectModel{
+		fields: map[string]int{},
+	}
 
 	var model T
 	st := reflect.TypeOf(model)
@@ -46,7 +48,8 @@ func (rm *ReflectModel) SetModel(model interface{}) {
 	rm.Addresses = []interface{}{}
 
 	for _, index := range rm.fields {
-		rm.Values = append(rm.Values, sv.Field(index))
-		rm.Addresses = append(rm.Addresses, sv.Field(index).Addr())
+		field := sv.Field(index)
+		rm.Values = append(rm.Values, field.Interface())
+		rm.Addresses = append(rm.Addresses, field.Addr())
 	}
 }

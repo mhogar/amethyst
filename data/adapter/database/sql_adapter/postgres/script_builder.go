@@ -16,11 +16,14 @@ func (s ScriptBuilder) BuildSelectQuery(model adapter.ReflectModel, where *query
 	script := `
 		SELECT t1."%s"
 			FROM "%s" t1
-		WHERE %s
 	`
 
+	if where != nil {
+		script += fmt.Sprintf("WHERE %s", s.buildWhereString(model, where))
+	}
+
 	return fmt.Sprintf(
-		script, strings.Join(model.Fields, `", t1."`), model.Name, s.buildWhereString(model, where),
+		script, strings.Join(model.Fields, `", t1."`), model.Name,
 	)
 }
 

@@ -3,7 +3,7 @@ package dependencies
 import "github.com/mhogar/kiwi/nodes/converter"
 
 func createBaseConverter() converter.BaseConverter {
-	return converter.BaseConverterImpl{
+	return &converter.BaseConverterImpl{
 		PasswordHasher: PasswordHasher.Resolve(),
 	}
 }

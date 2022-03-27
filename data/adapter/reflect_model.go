@@ -2,10 +2,12 @@ package adapter
 
 import (
 	"reflect"
+	"strings"
 )
 
 type ReflectModel struct {
-	fields map[string]int
+	fieldIndices     []int
+	uniqueFieldIndex int
 
 	Name      string
 	Fields    []string
@@ -14,42 +16,45 @@ type ReflectModel struct {
 }
 
 func CreateReflectModel[T any]() ReflectModel {
-	rm := ReflectModel{
-		fields: map[string]int{},
-	}
+	m := ReflectModel{}
 
 	var model T
 	st := reflect.TypeOf(model)
-	rm.Name = st.Name()
+	m.Name = st.Name()
 
-	for i := 0; i < st.NumField(); i++ {
-		tag := st.Field(i).Tag.Get("kiwi")
-		if tag != "" {
-			rm.fields[tag] = i
-			rm.Fields = append(rm.Fields, tag)
+	for index := 0; index < st.NumField(); index++ {
+		tokens := strings.Split(st.Field(index).Tag.Get("kiwi"), ",")
+
+		if len(tokens) >= 1 {
+			m.fieldIndices = append(m.fieldIndices, index)
+			m.Fields = append(m.Fields, tokens[0])
+		}
+
+		if len(tokens) >= 2 && tokens[1] == "unique" {
+			m.uniqueFieldIndex = index
 		}
 	}
 
-	return rm
+	return m
 }
 
-func (rm *ReflectModel) UniqueField() string {
-	return rm.Fields[0]
+func (m *ReflectModel) UniqueField() string {
+	return m.Fields[m.uniqueFieldIndex]
 }
 
-func (rm *ReflectModel) UniqueValue() interface{} {
-	return rm.Values[0]
+func (m *ReflectModel) UniqueValue() interface{} {
+	return m.Values[m.uniqueFieldIndex]
 }
 
-func (rm *ReflectModel) SetModel(model interface{}) {
+func (m *ReflectModel) SetModel(model interface{}) {
 	sv := reflect.ValueOf(model).Elem()
 
-	rm.Values = []interface{}{}
-	rm.Addresses = []interface{}{}
+	m.Values = []interface{}{}
+	m.Addresses = []interface{}{}
 
-	for _, index := range rm.fields {
+	for index := range m.fieldIndices {
 		field := sv.Field(index)
-		rm.Values = append(rm.Values, field.Interface())
-		rm.Addresses = append(rm.Addresses, field.Addr())
+		m.Values = append(m.Values, field.Interface())
+		m.Addresses = append(m.Addresses, field.Addr().Interface())
 	}
 }

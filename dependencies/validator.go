@@ -2,10 +2,6 @@ package dependencies
 
 import "github.com/mhogar/kiwi/nodes/validator"
 
-func createBaseValidator() validator.BaseValidator {
-	return &validator.BaseValidatorImpl{}
-}
-
-var BaseValidator = Dependency[validator.BaseValidator]{
-	createObject: createBaseValidator,
+func CreateBaseValidator[T any]() validator.BaseValidator[T] {
+	return &validator.BaseValidatorImpl[T]{}
 }

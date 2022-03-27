@@ -6,7 +6,7 @@ import (
 )
 
 type ScriptBuilder interface {
-	BuildSelectQuery(model adapter.ReflectModel, where *query.WhereClause) string
+	BuildSelectQuery(model adapter.ReflectModel, where *query.WhereClause) (string, []any)
 	BuildInsertStatement(model adapter.ReflectModel) string
 	BuildUpdateStatement(model adapter.ReflectModel) string
 	BuildDeleteStatement(model adapter.ReflectModel) string

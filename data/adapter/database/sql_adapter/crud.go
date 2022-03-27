@@ -7,18 +7,18 @@ import (
 )
 
 func (a *SQLAdapter) Select(model adapter.ReflectModel, where *query.WhereClause) (adapter.DataIterator, error) {
-	script := a.SQLDriver.BuildSelectQuery(model, where)
+	script, values := a.SQLDriver.BuildSelectQuery(model, where)
 
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := a.DB.QueryContext(ctx, script)
-	defer cancel()
+	rows, err := a.DB.QueryContext(ctx, script, values...)
 
 	if err != nil {
 		return nil, common.ChainError("error executing query", err)
 	}
 
 	return &RowsIterator{
-		Rows: rows,
+		cancel: cancel,
+		Rows:   rows,
 	}, nil
 }
 

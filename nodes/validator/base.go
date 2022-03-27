@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+
+	"github.com/mhogar/kiwi/common"
+	"github.com/mhogar/kiwi/data"
+	"github.com/mhogar/kiwi/data/adapter"
+	"github.com/mhogar/kiwi/data/query"
 )
 
-type BaseValidator interface {
-	ValidateLength(field string, val interface{}, minLen int, maxLen int) *ValidationErrors
-	ValidatePassword(field string, val interface{}, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors
+type BaseValidator[T any] interface {
+	ValidateLength(model *T, field string, minLen int, maxLen int) *ValidationErrors
+	ValidatePassword(model *T, field string, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors
+	ValidateUniqueField(model *T, db adapter.DataAdapter, message string) (*ValidationErrors, error)
 }
 
-type BaseValidatorImpl struct{}
+type BaseValidatorImpl[T any] struct{}
 
-func (BaseValidatorImpl) ValidateLength(field string, val interface{}, minLen int, maxLen int) *ValidationErrors {
-	len := reflect.ValueOf(val).Len()
+func (BaseValidatorImpl[T]) ValidateLength(model *T, field string, minLen int, maxLen int) *ValidationErrors {
+	len := reflect.ValueOf(model).Elem().FieldByName(field).Len()
 	verrs := &ValidationErrors{}
 
 	if minLen > 0 && len < minLen {
@@ -26,9 +32,9 @@ func (BaseValidatorImpl) ValidateLength(field string, val interface{}, minLen in
 	return verrs
 }
 
-func (v BaseValidatorImpl) ValidatePassword(field string, val interface{}, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors {
-	str := val.(string)
-	verrs := v.ValidateLength(field, str, minLen, maxLen)
+func (v BaseValidatorImpl[T]) ValidatePassword(model *T, field string, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors {
+	str := reflect.ValueOf(model).Elem().FieldByName(field).String()
+	verrs := v.ValidateLength(model, field, minLen, maxLen)
 
 	if requireDigit && regexp.MustCompile(`[0-9]`).FindString(str) == "" {
 		verrs.Add(field, "must contain digit")
@@ -39,4 +45,26 @@ func (v BaseValidatorImpl) ValidatePassword(field string, val interface{}, minLe
 	}
 
 	return verrs
+}
+
+func (v BaseValidatorImpl[T]) ValidateUniqueField(model *T, db adapter.DataAdapter, message string) (*ValidationErrors, error) {
+	verrs := &ValidationErrors{}
+
+	m := adapter.CreateReflectModel[T]()
+	m.SetModel(model)
+
+	handle := data.GetHandle[T](db)
+	other, err := handle.Read(
+		query.Where(m.UniqueField(), "=", m.UniqueValue()),
+	)
+
+	if err != nil {
+		return verrs, common.ChainError("error getting model by unique field", err)
+	}
+
+	if len(other) > 0 {
+		verrs.Add(m.UniqueField(), message)
+	}
+
+	return verrs, nil
 }

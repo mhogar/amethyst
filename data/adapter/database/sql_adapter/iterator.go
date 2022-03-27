@@ -1,6 +1,7 @@
 package sqladapter
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/mhogar/kiwi/common"
@@ -8,7 +9,8 @@ import (
 )
 
 type RowsIterator struct {
-	Rows *sql.Rows
+	cancel context.CancelFunc
+	Rows   *sql.Rows
 }
 
 func (itr *RowsIterator) Next() (bool, error) {
@@ -17,6 +19,8 @@ func (itr *RowsIterator) Next() (bool, error) {
 		if err != nil {
 			return false, common.ChainError("error preparing next row", err)
 		}
+
+		return false, nil
 	}
 
 	return true, nil
@@ -32,5 +36,6 @@ func (itr *RowsIterator) Read(model adapter.ReflectModel) error {
 }
 
 func (itr *RowsIterator) Close() {
+	itr.cancel()
 	itr.Rows.Close()
 }

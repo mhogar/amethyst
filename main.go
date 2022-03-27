@@ -14,7 +14,7 @@ func Run(adapter adapter.DataAdapter, workflow nodes.Workflow[nodes.BaseContext]
 		Adapter: adapter,
 	}
 
-	user, err := workflow.Run(ctx, user.CreateNewUserInput("username", "Password123!", 3))
+	user, err := workflow.Run(ctx, user.CreateNewUserInput("user2", "Password123!", 3))
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,9 @@ func Run(adapter adapter.DataAdapter, workflow nodes.Workflow[nodes.BaseContext]
 func main() {
 	f := nodes.NodeFactory[nodes.BaseContext]{}
 	w := f.Workflow(
-		f.Validation(user.CreateUserValidator()),
+		f.Validation(user.CreateUserInputValidator()),
 		f.Converter(user.CreateUserConverter()),
+		f.Validation(user.CreateUserValidator()),
 		user.CreateUserNode{},
 	)
 

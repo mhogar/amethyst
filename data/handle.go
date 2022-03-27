@@ -16,16 +16,16 @@ func GetHandle[T any](da adapter.DataAdapter) Handle[T] {
 }
 
 func (h Handle[T]) Create(model *T) error {
-	rm := adapter.CreateReflectModel[T]()
-	rm.SetModel(model)
+	m := adapter.CreateReflectModel[T]()
+	m.SetModel(model)
 
-	return h.Adapter.Insert(rm)
+	return h.Adapter.Insert(m)
 }
 
 func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
-	rm := adapter.CreateReflectModel[T]()
+	m := adapter.CreateReflectModel[T]()
 
-	itr, err := h.Adapter.Select(rm, where)
+	itr, err := h.Adapter.Select(m, where)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 			break
 		}
 
-		model, err := h.readModel(itr, rm)
+		model, err := h.readModel(itr, m)
 		if err != nil {
 			return nil, err
 		}
@@ -54,24 +54,24 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 }
 
 func (h Handle[T]) Update(model *T) (bool, error) {
-	rm := adapter.CreateReflectModel[T]()
-	rm.SetModel(&model)
+	m := adapter.CreateReflectModel[T]()
+	m.SetModel(&model)
 
-	return h.Adapter.Update(rm)
+	return h.Adapter.Update(m)
 }
 
 func (h Handle[T]) Delete(model *T) (bool, error) {
-	rm := adapter.CreateReflectModel[T]()
-	rm.SetModel(&model)
+	m := adapter.CreateReflectModel[T]()
+	m.SetModel(&model)
 
-	return h.Adapter.Delete(rm)
+	return h.Adapter.Delete(m)
 }
 
-func (h Handle[T]) readModel(itr adapter.DataIterator, rm adapter.ReflectModel) (*T, error) {
+func (h Handle[T]) readModel(itr adapter.DataIterator, m adapter.ReflectModel) (*T, error) {
 	var model T
-	rm.SetModel(&model)
+	m.SetModel(&model)
 
-	err := itr.Read(rm)
+	err := itr.Read(m)
 	if err != nil {
 		return nil, err
 	}

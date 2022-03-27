@@ -15,7 +15,11 @@ func (f NodeFactory[T]) Validation(v validator.Validator[T]) ValidationNode[T] {
 }
 
 func (n ValidationNode[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
-	verrs := n.Validator.Validate(ctx, input)
+	verrs, err := n.Validator.Validate(ctx, input)
+
+	if err != nil {
+		return nil, InternalError(err)
+	}
 
 	if verrs.HasErrors() {
 		return nil, ClientError(verrs.Errors()...)

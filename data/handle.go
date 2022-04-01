@@ -55,14 +55,14 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 
 func (h Handle[T]) Update(model *T) (bool, error) {
 	m := adapter.CreateReflectModel[T]()
-	m.SetModel(&model)
+	m.SetModel(model)
 
 	return h.Adapter.Update(m)
 }
 
 func (h Handle[T]) Delete(model *T) (bool, error) {
 	m := adapter.CreateReflectModel[T]()
-	m.SetModel(&model)
+	m.SetModel(model)
 
 	return h.Adapter.Delete(m)
 }

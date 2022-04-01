@@ -19,3 +19,39 @@ func (CreateUserNode) Run(ctx nodes.BaseContext, input interface{}) (interface{}
 
 	return user, nil
 }
+
+type UpdateUserNode struct{}
+
+func (UpdateUserNode) Run(ctx nodes.BaseContext, input interface{}) (interface{}, *nodes.Error) {
+	user := input.(*User)
+	handle := data.GetHandle[User](ctx.Adapter)
+
+	exists, err := handle.Update(user)
+	if err != nil {
+		return nil, nodes.InternalError(common.ChainError("error updating user", err))
+	}
+
+	if !exists {
+		return nil, nodes.ClientError(common.NewError(`user "%s" not found`, user.Username))
+	}
+
+	return user, nil
+}
+
+type DeleteUserNode struct{}
+
+func (DeleteUserNode) Run(ctx nodes.BaseContext, input interface{}) (interface{}, *nodes.Error) {
+	user := input.(*User)
+	handle := data.GetHandle[User](ctx.Adapter)
+
+	exists, err := handle.Delete(user)
+	if err != nil {
+		return nil, nodes.InternalError(common.ChainError("error deleting user", err))
+	}
+
+	if !exists {
+		return nil, nodes.ClientError(common.NewError(`user "%s" not found`, user.Username))
+	}
+
+	return user, nil
+}

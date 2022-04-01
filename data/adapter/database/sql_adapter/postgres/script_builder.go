@@ -81,7 +81,7 @@ func (ScriptBuilder) buildSetString(model adapter.ReflectModel) string {
 		)
 	}
 
-	return strings.Join(setScripts, `", "`)
+	return strings.Join(setScripts, ", ")
 }
 
 // Build a delete statement using the reflection model.

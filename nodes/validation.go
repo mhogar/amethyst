@@ -4,17 +4,17 @@ import (
 	"github.com/mhogar/kiwi/nodes/validator"
 )
 
-type ValidationNode[T any] struct {
-	Validator validator.Validator[T]
+type ValidationNode[Context any] struct {
+	Validator validator.Validator[Context]
 }
 
-func (f NodeFactory[T]) Validation(v validator.Validator[T]) ValidationNode[T] {
-	return ValidationNode[T]{
+func (f NodeFactory[Context, Model]) Validation(v validator.Validator[Context]) ValidationNode[Context] {
+	return ValidationNode[Context]{
 		Validator: v,
 	}
 }
 
-func (n ValidationNode[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
+func (n ValidationNode[Context]) Run(ctx Context, input interface{}) (interface{}, *Error) {
 	verrs, err := n.Validator.Validate(ctx, input)
 
 	if err != nil {

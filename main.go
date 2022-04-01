@@ -24,40 +24,40 @@ func Run(adapter adapter.DataAdapter, workflow nodes.Workflow[nodes.BaseContext]
 }
 
 func CreateUserWorkflow() nodes.Workflow[nodes.BaseContext] {
-	f := nodes.NodeFactory[nodes.BaseContext]{}
+	f := nodes.NodeFactory[nodes.BaseContext, user.User]{}
 	return f.Workflow(
 		f.Validation(user.CreateUserInputValidator()),
 		f.Converter(user.CreateUserConverter()),
 		f.Validation(user.CreateUserValidator()),
-		user.CreateUserNode{},
+		f.CreateModel(),
 	)
 }
 
 func UpdateUserWorkflow() nodes.Workflow[nodes.BaseContext] {
-	f := nodes.NodeFactory[nodes.BaseContext]{}
+	f := nodes.NodeFactory[nodes.BaseContext, user.User]{}
 	return f.Workflow(
 		f.Validation(user.CreateUserInputValidator()),
 		f.Converter(user.CreateUserConverter()),
-		user.UpdateUserNode{},
+		f.UpdateModel("user with username not found"),
 	)
 }
 
 func DeleteUserWorkflow() nodes.Workflow[nodes.BaseContext] {
-	f := nodes.NodeFactory[nodes.BaseContext]{}
+	f := nodes.NodeFactory[nodes.BaseContext, user.User]{}
 	return f.Workflow(
-		user.DeleteUserNode{},
+		f.DeleteModel("user with username not found"),
 	)
 }
 
 func main() {
 	adapter := dependencies.DataAdapter.Resolve()
 
-	w := CreateUserWorkflow()
+	//w := CreateUserWorkflow()
 	//w := UpdateUserWorkflow()
-	//w := DeleteUserWorkflow()
+	w := DeleteUserWorkflow()
 
-	user := user.CreateNewUserInput("user2", "Password123!", 3)
-	//user := user.CreateNewUser("user2", nil, 0)
+	//user := user.CreateNewUserInput("user2", "Password123!", 3)
+	user := user.CreateNewUser("user2", nil, 0)
 
 	err := adapter.Setup()
 	if err != nil {

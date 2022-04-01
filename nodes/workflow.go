@@ -1,12 +1,12 @@
 package nodes
 
-type Workflow[T any] []Node[T]
+type Workflow[Context any] []Node[Context]
 
-func (f NodeFactory[T]) Workflow(nodes ...Node[T]) Workflow[T] {
+func (f NodeFactory[Context, Model]) Workflow(nodes ...Node[Context]) Workflow[Context] {
 	return nodes
 }
 
-func (w Workflow[T]) Run(ctx T, input interface{}) (interface{}, *Error) {
+func (w Workflow[Context]) Run(ctx Context, input interface{}) (interface{}, *Error) {
 	var err *Error
 
 	for _, node := range w {

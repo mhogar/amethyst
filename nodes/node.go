@@ -1,7 +1,7 @@
 package nodes
 
-type Node[T any] interface {
-	Run(ctx T, input interface{}) (interface{}, *Error)
+type Node[Context any] interface {
+	Run(ctx Context, input interface{}) (interface{}, *Error)
 }
 
-type NodeFactory[T any] struct{}
+type NodeFactory[Context any, Model any] struct{}

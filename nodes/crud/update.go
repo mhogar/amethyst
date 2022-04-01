@@ -20,7 +20,7 @@ func NewUpdateModelNode[Model any](notFoundMessage string) UpdateModelNode[Model
 
 func (n UpdateModelNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) {
 	model := input.(*Model)
-	handle := data.GetHandle[Model](ctx.(nodes.Context).DataAdapter())
+	handle := data.GetHandle[Model](ctx.(nodes.Context).GetDataAdapter())
 
 	exists, err := handle.Update(model)
 	if err != nil {

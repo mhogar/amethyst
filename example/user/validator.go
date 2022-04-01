@@ -39,7 +39,7 @@ func NewUserValidator() UserValidator {
 func (v UserValidator) Validate(ctx interface{}, val any) (*validator.ValidationErrors, error) {
 	user := val.(*User)
 
-	verrs, err := v.ValidateUniqueField(user, ctx.(nodes.Context).DataAdapter(), "already in use by another user")
+	verrs, err := v.ValidateUniqueField(user, ctx.(nodes.Context).GetDataAdapter(), "already in use by another user")
 	if err != nil {
 		return verrs, common.ChainError("error validating user unique field", err)
 	}

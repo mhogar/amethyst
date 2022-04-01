@@ -20,7 +20,7 @@ func NewDeleteModelNode[Model any](notFoundMessage string) DeleteModelNode[Model
 
 func (n DeleteModelNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) {
 	model := input.(*Model)
-	handle := data.GetHandle[Model](ctx.(nodes.Context).DataAdapter())
+	handle := data.GetHandle[Model](ctx.(nodes.Context).GetDataAdapter())
 
 	exists, err := handle.Delete(model)
 	if err != nil {

@@ -14,7 +14,7 @@ func NewCreateModelNode[Model any]() CreateModelNode[Model] {
 
 func (CreateModelNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) {
 	model := input.(*Model)
-	handle := data.GetHandle[Model](ctx.(nodes.Context).DataAdapter())
+	handle := data.GetHandle[Model](ctx.(nodes.Context).GetDataAdapter())
 
 	err := handle.Create(model)
 	if err != nil {

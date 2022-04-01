@@ -11,13 +11,13 @@ type UserInputValidator struct {
 	validator.BaseValidator[UserInput]
 }
 
-func CreateUserInputValidator() UserInputValidator {
+func NewUserInputValidator() UserInputValidator {
 	return UserInputValidator{
 		BaseValidator: dependencies.CreateBaseValidator[UserInput](),
 	}
 }
 
-func (v UserInputValidator) Validate(_ nodes.BaseContext, val interface{}) (*validator.ValidationErrors, error) {
+func (v UserInputValidator) Validate(_ interface{}, val any) (*validator.ValidationErrors, error) {
 	user := val.(*UserInput)
 
 	verrs := v.ValidateLength(user, "Username", 5, 30)
@@ -30,16 +30,16 @@ type UserValidator struct {
 	validator.BaseValidator[User]
 }
 
-func CreateUserValidator() UserValidator {
+func NewUserValidator() UserValidator {
 	return UserValidator{
 		BaseValidator: dependencies.CreateBaseValidator[User](),
 	}
 }
 
-func (v UserValidator) Validate(ctx nodes.BaseContext, val interface{}) (*validator.ValidationErrors, error) {
+func (v UserValidator) Validate(ctx interface{}, val any) (*validator.ValidationErrors, error) {
 	user := val.(*User)
 
-	verrs, err := v.ValidateUniqueField(user, ctx.Adapter, "already in use by another user")
+	verrs, err := v.ValidateUniqueField(user, ctx.(nodes.Context).DataAdapter(), "already in use by another user")
 	if err != nil {
 		return verrs, common.ChainError("error validating user unique field", err)
 	}

@@ -16,7 +16,7 @@ func NewJSONBodyParserNode[Model any]() JSONBodyParserNode[Model] {
 func (JSONBodyParserNode[Model]) Run(ctx interface{}, _ any) (any, *nodes.Error) {
 	model := new(Model)
 
-	decoder := json.NewDecoder(ctx.(WebContext).GetRequest().Body)
+	decoder := json.NewDecoder(ctx.(HTTPContext).GetRequest().Body)
 	err := decoder.Decode(model)
 	if err != nil {
 		return nil, nodes.ClientError(errors.New("invalid json body"))

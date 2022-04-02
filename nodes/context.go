@@ -10,7 +10,7 @@ type ContextImpl struct {
 	Adapter adapter.DataAdapter
 }
 
-func NewContext(adapter adapter.DataAdapter) Context {
+func NewContext(adapter adapter.DataAdapter) ContextImpl {
 	return ContextImpl{
 		Adapter: adapter,
 	}

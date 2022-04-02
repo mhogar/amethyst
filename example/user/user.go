@@ -1,17 +1,9 @@
 package user
 
 type UserInput struct {
-	Username string
-	Password string
-	Rank     int
-}
-
-func CreateNewUserInput(username string, password string, rank int) *UserInput {
-	return &UserInput{
-		Username: username,
-		Password: password,
-		Rank:     rank,
-	}
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Rank     int    `json:"rank"`
 }
 
 type User struct {
@@ -20,7 +12,7 @@ type User struct {
 	Rank         int    `kiwi:"rank"`
 }
 
-func CreateNewUser(username string, hash []byte, rank int) *User {
+func NewUser(username string, hash []byte, rank int) *User {
 	return &User{
 		Username:     username,
 		PasswordHash: hash,

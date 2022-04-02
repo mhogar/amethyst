@@ -5,22 +5,20 @@ import (
 	"github.com/mhogar/kiwi/nodes"
 )
 
-type Converter interface {
-	Convert(ctx interface{}, val any) (any, error)
-}
+type Converter func(ctx interface{}, val any) (any, error)
 
 type ConverterNode struct {
-	Converter Converter
+	Convert Converter
 }
 
 func NewConverterNode(c Converter) ConverterNode {
 	return ConverterNode{
-		Converter: c,
+		Convert: c,
 	}
 }
 
 func (n ConverterNode) Run(ctx interface{}, input any) (any, *nodes.Error) {
-	output, err := n.Converter.Convert(ctx, input)
+	output, err := n.Convert(ctx, input)
 	if err != nil {
 		return nil, nodes.InternalError(common.ChainError("error converting model", err))
 	}

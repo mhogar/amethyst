@@ -6,6 +6,11 @@ type UserInput struct {
 	Rank     int    `json:"rank"`
 }
 
+type UserResponse struct {
+	Username string `json:"username"`
+	Rank     int    `json:"rank"`
+}
+
 type User struct {
 	Username     string `kiwi:"username,unique"`
 	PasswordHash []byte `kiwi:"password_hash"`

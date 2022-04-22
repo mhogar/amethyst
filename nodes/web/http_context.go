@@ -11,23 +11,28 @@ type HTTPContext interface {
 	nodes.Context
 
 	GetRequest() *http.Request
+	GetResponseWriter() http.ResponseWriter
 }
 
 type HTTPContextImpl struct {
 	nodes.ContextImpl
 
-	Writer  http.ResponseWriter
-	Request *http.Request
+	Request        *http.Request
+	ResponseWriter http.ResponseWriter
 }
 
 func NewHTTPContext(adapter adapter.DataAdapter, w http.ResponseWriter, req *http.Request) HTTPContextImpl {
 	return HTTPContextImpl{
-		ContextImpl: nodes.NewContext(adapter),
-		Writer:      w,
-		Request:     req,
+		ContextImpl:    nodes.NewContext(adapter),
+		ResponseWriter: w,
+		Request:        req,
 	}
 }
 
 func (c HTTPContextImpl) GetRequest() *http.Request {
 	return c.Request
+}
+
+func (c HTTPContextImpl) GetResponseWriter() http.ResponseWriter {
+	return c.ResponseWriter
 }

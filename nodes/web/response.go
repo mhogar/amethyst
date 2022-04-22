@@ -5,13 +5,25 @@ import (
 	"net/http"
 )
 
+type BasicResponse struct {
+	Success bool `json:"success"`
+}
+
+func NewSuccessResponse() BasicResponse {
+	return BasicResponse{
+		Success: true,
+	}
+}
+
 type ErrorResponse struct {
-	Errors []string `json:"errors"`
+	Success bool     `json:"success"`
+	Errors  []string `json:"errors"`
 }
 
 func NewErrorResponse(errs ...string) ErrorResponse {
 	return ErrorResponse{
-		Errors: errs,
+		Success: false,
+		Errors:  errs,
 	}
 }
 
@@ -34,4 +46,16 @@ func sendClientErrorResponse(w http.ResponseWriter, status int, errs []error) {
 
 func sendInternalErrorResponse(w http.ResponseWriter) {
 	sendJSONResponse(w, http.StatusInternalServerError, NewErrorResponse("an internal error occurred"))
+}
+
+type DataResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+}
+
+func NewSuccessDataResponse(data interface{}) DataResponse {
+	return DataResponse{
+		Success: true,
+		Data:    data,
+	}
 }

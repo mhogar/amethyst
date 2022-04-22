@@ -38,3 +38,12 @@ func (UserConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
 	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
 	return NewUser(username, nil, 0), nil
 }
+
+func (UserConverter) ConvertUserToResponse(_ interface{}, val any) (any, error) {
+	user := val.(*User)
+
+	return &UserResponse{
+		Username: user.Username,
+		Rank:     user.Rank,
+	}, nil
+}

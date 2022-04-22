@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
+	"github.com/mhogar/kiwi/data/adapter"
 	"github.com/mhogar/kiwi/dependencies"
 	"github.com/mhogar/kiwi/example/user"
 	"github.com/mhogar/kiwi/nodes"
@@ -23,6 +25,8 @@ func CreateUserWorkflow() nodes.Workflow {
 		converter.NewConverterNode(c.ConvertInputToUser),
 		validator.NewValidatorNode(user.NewUserValidator()),
 		crud.NewCreateModelNode[user.User](),
+		converter.NewConverterNode(c.ConvertUserToResponse),
+		web.NewDataResponseNode(),
 	)
 }
 
@@ -35,6 +39,8 @@ func UpdateUserWorkflow() nodes.Workflow {
 		validator.NewValidatorNode(user.NewUserInputValidator()),
 		converter.NewConverterNode(c.ConvertInputToUser),
 		crud.NewUpdateModelNode[user.User]("user with username not found"),
+		converter.NewConverterNode(c.ConvertUserToResponse),
+		web.NewDataResponseNode(),
 	)
 }
 
@@ -44,7 +50,24 @@ func DeleteUserWorkflow() nodes.Workflow {
 	return nodes.NewWorkflow(
 		converter.NewConverterNode(c.NewUserFromParams),
 		crud.NewDeleteModelNode[user.User]("user with username not found"),
+		web.NewSuccessResponseNode(),
 	)
+}
+
+func createRouter(adapter adapter.DataAdapter) *httprouter.Router {
+	r := httprouter.New()
+
+	r.POST("/user",
+		web.NewHandler(adapter, CreateUserWorkflow()).ServeHTTPRouter,
+	)
+	r.PUT("/user/:username",
+		web.NewHandler(adapter, UpdateUserWorkflow()).ServeHTTPRouter,
+	)
+	r.DELETE("/user/:username",
+		web.NewHandler(adapter, DeleteUserWorkflow()).ServeHTTPRouter,
+	)
+
+	return r
 }
 
 func main() {
@@ -57,15 +80,11 @@ func main() {
 	}
 	defer adapter.CleanUp()
 
-	r := httprouter.New()
+	server := http.Server{
+		Addr:    ":8080",
+		Handler: createRouter(adapter),
+	}
 
-	r.POST("/user",
-		web.NewHandler(adapter, CreateUserWorkflow()).ServeHTTPRouter,
-	)
-	r.PUT("/user/:username",
-		web.NewHandler(adapter, CreateUserWorkflow()).ServeHTTPRouter,
-	)
-	r.DELETE("/user/:username",
-		web.NewHandler(adapter, CreateUserWorkflow()).ServeHTTPRouter,
-	)
+	fmt.Println("Server is running on port 8080")
+	server.ListenAndServe()
 }

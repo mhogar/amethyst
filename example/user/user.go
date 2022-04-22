@@ -24,3 +24,10 @@ func NewUser(username string, hash []byte, rank int) *User {
 		Rank:         rank,
 	}
 }
+
+func newUserResponse(user *User) UserResponse {
+	return UserResponse{
+		Username: user.Username,
+		Rank:     user.Rank,
+	}
+}

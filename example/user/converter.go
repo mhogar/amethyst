@@ -41,9 +41,16 @@ func (UserConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
 
 func (UserConverter) ConvertUserToResponse(_ interface{}, val any) (any, error) {
 	user := val.(*User)
+	return newUserResponse(user), nil
+}
 
-	return &UserResponse{
-		Username: user.Username,
-		Rank:     user.Rank,
-	}, nil
+func (UserConverter) ConvertUsersToResponse(_ interface{}, val any) (any, error) {
+	users := val.([]*User)
+	res := make([]UserResponse, len(users))
+
+	for i, user := range users {
+		res[i] = newUserResponse(user)
+	}
+
+	return res, nil
 }

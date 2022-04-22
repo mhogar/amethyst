@@ -10,11 +10,35 @@ import (
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/converter"
 	"github.com/mhogar/kiwi/nodes/crud"
+	"github.com/mhogar/kiwi/nodes/query"
 	"github.com/mhogar/kiwi/nodes/validator"
 	"github.com/mhogar/kiwi/nodes/web"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+func GetUsersWorkflow() nodes.Workflow {
+	c := user.NewUserConverter()
+
+	return nodes.NewWorkflow(
+		crud.NewReadModelsNode[user.User](),
+		converter.NewConverterNode(c.ConvertUsersToResponse),
+		web.NewDataResponseNode(),
+	)
+}
+
+func GetUserWorkflow() nodes.Workflow {
+	c := user.NewUserConverter()
+	b := user.NewUserQueryBuilder()
+
+	return nodes.NewWorkflow(
+		converter.NewConverterNode(c.NewUserFromParams),
+		query.NewBuildQueryNode(b.GetUserByUsername),
+		crud.NewReadModelNode[user.User](),
+		converter.NewConverterNode(c.ConvertUserToResponse),
+		web.NewDataResponseNode(),
+	)
+}
 
 func CreateUserWorkflow() nodes.Workflow {
 	c := user.NewUserConverter()
@@ -57,6 +81,12 @@ func DeleteUserWorkflow() nodes.Workflow {
 func createRouter(adapter adapter.DataAdapter) *httprouter.Router {
 	r := httprouter.New()
 
+	r.GET("/user",
+		web.NewHandler(adapter, GetUsersWorkflow()).ServeHTTPRouter,
+	)
+	r.GET("/user/:username",
+		web.NewHandler(adapter, GetUserWorkflow()).ServeHTTPRouter,
+	)
 	r.POST("/user",
 		web.NewHandler(adapter, CreateUserWorkflow()).ServeHTTPRouter,
 	)

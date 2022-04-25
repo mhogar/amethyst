@@ -18,3 +18,24 @@ func (w Workflow) Run(ctx interface{}, input any) (any, *Error) {
 
 	return input, err
 }
+
+type SplitWorkflowNode struct {
+	Branches []Workflow
+}
+
+func NewSplitWorkflowNode(branches ...Workflow) SplitWorkflowNode {
+	return SplitWorkflowNode{
+		Branches: branches,
+	}
+}
+
+func (w SplitWorkflowNode) Run(ctx interface{}, input any) (any, *Error) {
+	for _, branch := range w.Branches {
+		_, err := branch.Run(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}

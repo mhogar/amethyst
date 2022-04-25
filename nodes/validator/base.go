@@ -11,16 +11,8 @@ import (
 	"github.com/mhogar/kiwi/data/query"
 )
 
-type BaseValidator[T any] interface {
-	ValidateLength(model *T, field string, minLen int, maxLen int) *ValidationErrors
-	ValidatePassword(model *T, field string, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors
-	ValidateUniqueField(model *T, db adapter.DataAdapter, message string) (*ValidationErrors, error)
-}
-
-type BaseValidatorImpl[T any] struct{}
-
-func (BaseValidatorImpl[T]) ValidateLength(model *T, field string, minLen int, maxLen int) *ValidationErrors {
-	len := reflect.ValueOf(model).Elem().FieldByName(field).Len()
+func ValidateLength(field string, value any, minLen int, maxLen int) *ValidationErrors {
+	len := reflect.ValueOf(value).Len()
 	verrs := &ValidationErrors{}
 
 	if minLen > 0 && len < minLen {
@@ -32,22 +24,43 @@ func (BaseValidatorImpl[T]) ValidateLength(model *T, field string, minLen int, m
 	return verrs
 }
 
-func (v BaseValidatorImpl[T]) ValidatePassword(model *T, field string, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors {
-	str := reflect.ValueOf(model).Elem().FieldByName(field).String()
-	verrs := v.ValidateLength(model, field, minLen, maxLen)
+func ValidateMin(field string, value any, minValue int64) *ValidationErrors {
+	num := reflect.ValueOf(value).Int()
+	verrs := &ValidationErrors{}
 
-	if requireDigit && regexp.MustCompile(`[0-9]`).FindString(str) == "" {
+	if num < minValue {
+		verrs.Add(field, fmt.Sprintf("smaller than min value %d", minValue))
+	}
+
+	return verrs
+}
+
+func ValidateMax(field string, value any, maxValue int64) *ValidationErrors {
+	num := reflect.ValueOf(value).Int()
+	verrs := &ValidationErrors{}
+
+	if num > maxValue {
+		verrs.Add(field, fmt.Sprintf("larger than max value %d", maxValue))
+	}
+
+	return verrs
+}
+
+func ValidatePassword(field string, value string, minLen int, maxLen int, requireDigit bool, requireSymbol bool) *ValidationErrors {
+	verrs := ValidateLength(field, value, minLen, maxLen)
+
+	if requireDigit && regexp.MustCompile(`[0-9]`).FindString(value) == "" {
 		verrs.Add(field, "must contain digit")
 	}
 
-	if requireSymbol && regexp.MustCompile(`[^0-9a-zA-Z]`).FindString(str) == "" {
+	if requireSymbol && regexp.MustCompile(`[^0-9a-zA-Z]`).FindString(value) == "" {
 		verrs.Add(field, "must contain symbol")
 	}
 
 	return verrs
 }
 
-func (v BaseValidatorImpl[T]) ValidateUniqueField(model *T, db adapter.DataAdapter, message string) (*ValidationErrors, error) {
+func ValidateUniqueField[T any](model *T, db adapter.DataAdapter, message string) (*ValidationErrors, error) {
 	verrs := &ValidationErrors{}
 
 	m := adapter.CreateReflectModel[T]()

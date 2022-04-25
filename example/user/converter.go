@@ -7,44 +7,62 @@ import (
 	"github.com/mhogar/kiwi/nodes/web"
 )
 
-type UserConverter struct {
+type userConverter struct {
 	converter.BaseConverter
 }
 
-func NewUserConverter() UserConverter {
-	return UserConverter{
+func newUserConverter() userConverter {
+	return userConverter{
 		BaseConverter: dependencies.BaseConverter.Resolve(),
 	}
 }
 
-func (c UserConverter) ConvertInputToUser(_ interface{}, val any) (any, error) {
-	user := val.(*UserInput)
+func (c userConverter) UserFieldsToUser(_ interface{}, val any) (any, error) {
+	user := val.(UserFields)
+	return NewUser(user.GetUsername(), user.GetRank()), nil
+}
 
-	hash, err := c.HashPassword(user.Password)
+func (c userConverter) UserAuthFieldsToUserAuth(_ interface{}, val any) (any, error) {
+	user := val.(UserAuthFields)
+
+	hash, err := c.HashPassword(user.GetPassword())
 	if err != nil {
 		return nil, common.ChainError("error hashing password", err)
 	}
 
-	return NewUser(user.Username, hash, user.Rank), nil
+	return NewUserAuth(user.GetUsername(), hash, user.GetRank()), nil
 }
 
-func (UserConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error) {
-	user := val.(*UserInput)
-	user.Username = ctx.(web.HTTPRouterContext).GetParams().ByName("username")
+func (userConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error) {
+	user := val.(UsernameField)
+	user.SetUsername(ctx.(web.HTTPRouterContext).GetParams().ByName("username"))
 	return user, nil
 }
 
-func (UserConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
+func (userConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
 	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
-	return NewUser(username, nil, 0), nil
+	return NewUser(username, 0), nil
 }
 
-func (UserConverter) ConvertUserToResponse(_ interface{}, val any) (any, error) {
+func (userConverter) NewUserAuthFromParams(ctx interface{}, _ any) (any, error) {
+	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
+	return NewUserAuth(username, nil, 0), nil
+}
+
+func (userConverter) UserFieldsToResponse(_ interface{}, val any) (any, error) {
+	user := val.(UserFields)
+	return UserResponse{
+		Username: user.GetUsername(),
+		Rank:     user.GetRank(),
+	}, nil
+}
+
+func (userConverter) UserToResponse(_ interface{}, val any) (any, error) {
 	user := val.(*User)
 	return newUserResponse(user), nil
 }
 
-func (UserConverter) ConvertUsersToResponse(_ interface{}, val any) (any, error) {
+func (userConverter) UsersToResponse(_ interface{}, val any) (any, error) {
 	users := val.([]*User)
 	res := make([]UserResponse, len(users))
 

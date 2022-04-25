@@ -13,13 +13,11 @@ func DeleteUserWorkflow() nodes.Workflow {
 	deleteUserAuth := nodes.NewWorkflow(
 		converter.NewConverterNode(c.NewUserAuthFromParams),
 		crud.NewDeleteModelNode[UserAuth]("user with username not found"),
-		web.NewSuccessResponseNode(),
 	)
 
 	deleteUser := nodes.NewWorkflow(
 		converter.NewConverterNode(c.NewUserFromParams),
-		crud.NewDeleteModelNode[UserAuth]("user with username not found"),
-		web.NewSuccessResponseNode(),
+		crud.NewDeleteModelNode[User]("user with username not found"),
 	)
 
 	return nodes.NewWorkflow(
@@ -27,5 +25,6 @@ func DeleteUserWorkflow() nodes.Workflow {
 			deleteUserAuth,
 			deleteUser,
 		),
+		web.NewSuccessResponseNode(),
 	)
 }

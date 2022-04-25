@@ -22,7 +22,7 @@ func (u *createUserInput) SetUsername(val string) {
 	u.Username = val
 }
 
-func (u *createUserInput) GetPassword() string {
+func (u *createUserInput) GetNewPassword() string {
 	return u.Password
 }
 

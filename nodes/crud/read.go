@@ -41,7 +41,7 @@ func (ReadModelNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) 
 
 	models, err := handle.Read(where)
 	if err != nil {
-		return nil, nodes.InternalError(common.ChainError("error reading models", err))
+		return nil, nodes.InternalError(common.ChainError("error reading model", err))
 	}
 
 	if len(models) < 0 {

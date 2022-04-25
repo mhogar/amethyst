@@ -6,8 +6,12 @@ type User struct {
 }
 
 type UserAuth struct {
-	User         *User  `kiwi:"user,unique,ref"`
+	Username     string `kiwi:"username,unique"`
 	PasswordHash []byte `kiwi:"password_hash"`
+}
+
+func (u UserAuth) GetPasswordHash() []byte {
+	return u.PasswordHash
 }
 
 func NewUser(username string, rank int) *User {
@@ -17,9 +21,9 @@ func NewUser(username string, rank int) *User {
 	}
 }
 
-func NewUserAuth(username string, hash []byte, rank int) *UserAuth {
+func NewUserAuth(username string, hash []byte) *UserAuth {
 	return &UserAuth{
-		User:         NewUser(username, rank),
+		Username:     username,
 		PasswordHash: hash,
 	}
 }

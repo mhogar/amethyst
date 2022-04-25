@@ -53,6 +53,21 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 	return models, nil
 }
 
+func (h Handle[T]) ReadUnique(val any) (*T, error) {
+	m := adapter.CreateReflectModel[T]()
+
+	models, err := h.Read(query.Where(m.UniqueField(), "=", val))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(models) > 0 {
+		return models[0], nil
+	}
+
+	return nil, nil
+}
+
 func (h Handle[T]) Update(model *T) (bool, error) {
 	m := adapter.CreateReflectModel[T]()
 	m.SetModel(model)

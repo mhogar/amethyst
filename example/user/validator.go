@@ -13,16 +13,16 @@ func newUserValidator() userValidator {
 }
 
 func (v userValidator) ValidatePasswordComplexity(_ interface{}, val interface{}) (*validator.ValidationErrors, error) {
-	password := val.(PasswordField).GetPassword()
+	password := val.(PasswordField).GetNewPassword()
 	return validator.ValidatePassword("password", password, 8, 0, true, true), nil
 }
 
 func (userValidator) ValidateUser(_ interface{}, val any) (*validator.ValidationErrors, error) {
-	user := val.(UserFields)
+	user := val.(*User)
 	verrs := &validator.ValidationErrors{}
 
-	verrs.Merge(validator.ValidateLength("username", user.GetUsername(), 5, 30))
-	verrs.Merge(validator.ValidateMin("rank", user.GetRank(), 0))
+	verrs.Merge(validator.ValidateLength("username", user.Username, 5, 30))
+	verrs.Merge(validator.ValidateMin("rank", user.Rank, 0))
 
 	return verrs, nil
 }

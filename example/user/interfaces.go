@@ -15,10 +15,10 @@ type UserFields interface {
 }
 
 type PasswordField interface {
-	GetPassword() string
+	GetNewPassword() string
 }
 
 type UserAuthFields interface {
-	UserFields
+	UsernameField
 	PasswordField
 }

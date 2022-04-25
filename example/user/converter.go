@@ -25,12 +25,12 @@ func (c userConverter) UserFieldsToUser(_ interface{}, val any) (any, error) {
 func (c userConverter) UserAuthFieldsToUserAuth(_ interface{}, val any) (any, error) {
 	user := val.(UserAuthFields)
 
-	hash, err := c.HashPassword(user.GetPassword())
+	hash, err := c.HashPassword(user.GetNewPassword())
 	if err != nil {
 		return nil, common.ChainError("error hashing password", err)
 	}
 
-	return NewUserAuth(user.GetUsername(), hash, user.GetRank()), nil
+	return NewUserAuth(user.GetUsername(), hash), nil
 }
 
 func (userConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error) {
@@ -46,7 +46,7 @@ func (userConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
 
 func (userConverter) NewUserAuthFromParams(ctx interface{}, _ any) (any, error) {
 	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
-	return NewUserAuth(username, nil, 0), nil
+	return NewUserAuth(username, nil), nil
 }
 
 func (userConverter) UserFieldsToResponse(_ interface{}, val any) (any, error) {

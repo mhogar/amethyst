@@ -1,5 +1,9 @@
 package user
 
+type UsernameGetter interface {
+	GetUsername() string
+}
+
 type UsernameField interface {
 	GetUsername() string
 	SetUsername(val string)

@@ -15,7 +15,7 @@ type AuthModel interface {
 }
 
 type AuthFields interface {
-	GetUniqueValue() any
+	GetIdentifier() any
 	GetPassword() string
 }
 
@@ -33,7 +33,7 @@ func (n AuthenticateNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Er
 	fields := input.(AuthFields)
 
 	handle := data.GetHandle[Model](ctx.(nodes.Context).GetDataAdapter())
-	model, err := handle.ReadUnique(fields.GetUniqueValue())
+	model, err := handle.ReadUnique(fields.GetIdentifier())
 
 	if err != nil {
 		return nil, nodes.InternalError(common.ChainError("error reading model", err))

@@ -9,6 +9,6 @@ func NewUserQueryBuilder() UserQueryBuilder {
 }
 
 func (UserQueryBuilder) GetUserByUsername(_ interface{}, input any) (*query.WhereClause, error) {
-	user := input.(*User)
-	return query.Where("username", "=", user.Username), nil
+	user := input.(UsernameGetter)
+	return query.Where("username", "=", user.GetUsername()), nil
 }

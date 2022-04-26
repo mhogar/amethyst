@@ -23,7 +23,7 @@ func (u *updateUserAuthInput) SetUsername(val string) {
 	u.Username = val
 }
 
-func (u *updateUserAuthInput) GetUniqueValue() any {
+func (u *updateUserAuthInput) GetIdentifier() any {
 	return u.Username
 }
 

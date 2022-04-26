@@ -6,6 +6,7 @@ import (
 
 	"github.com/mhogar/kiwi/data/adapter"
 	"github.com/mhogar/kiwi/dependencies"
+	"github.com/mhogar/kiwi/example/session"
 	"github.com/mhogar/kiwi/example/user"
 	"github.com/mhogar/kiwi/nodes/web"
 
@@ -15,8 +16,9 @@ import (
 func createRouter(adapter adapter.DataAdapter) *httprouter.Router {
 	r := httprouter.New()
 
+	// user routes
 	r.GET("/user",
-		web.NewHandler(adapter, user.GetUsersWorkflow()).ServeHTTPRouter,
+		web.NewHandler(adapter, user.GetUserEndpoint()).ServeHTTPRouter,
 	)
 	r.GET("/user/:username",
 		web.NewHandler(adapter, user.GetUserWorkflow()).ServeHTTPRouter,
@@ -32,6 +34,11 @@ func createRouter(adapter adapter.DataAdapter) *httprouter.Router {
 	)
 	r.DELETE("/user/:username",
 		web.NewHandler(adapter, user.DeleteUserWorkflow()).ServeHTTPRouter,
+	)
+
+	// session routes
+	r.POST("/session",
+		web.NewHandler(adapter, session.CreateSessionEndpoint()).ServeHTTPRouter,
 	)
 
 	return r

@@ -19,13 +19,20 @@ func GetUsersWorkflow() nodes.Workflow {
 }
 
 func GetUserWorkflow() nodes.Workflow {
-	c := newUserConverter()
 	b := NewUserQueryBuilder()
 
 	return nodes.NewWorkflow(
-		converter.NewConverterNode(c.NewUserFromParams),
 		query.NewBuildQueryNode(b.GetUserByUsername),
 		crud.NewReadModelNode[User](),
+	)
+}
+
+func GetUserEndpoint() nodes.Workflow {
+	c := newUserConverter()
+
+	return nodes.NewWorkflow(
+		converter.NewConverterNode(c.NewUserFromParams),
+		GetUserWorkflow(),
 		converter.NewConverterNode(c.UserToResponse),
 		web.NewDataResponseNode(),
 	)

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/converter"
 	"github.com/mhogar/kiwi/nodes/crud"
@@ -38,26 +39,30 @@ func CreateUserWorkflow() nodes.Workflow {
 		converter.NewConverterNode(c.UserFieldsToUser),
 		validator.NewValidatorNode(v.ValidateUser),
 		validator.NewValidatorNode(v.ValidateUserUnique),
-		crud.NewCreateModelNode[User](),
+		crud.NewCreateModelNode[models.User](),
 	)
 
 	createUserAuth := nodes.NewWorkflow(
 		validator.NewValidatorNode(v.ValidatePasswordComplexity),
 		converter.NewConverterNode(c.UserAuthFieldsToUserAuth),
-		crud.NewCreateModelNode[UserAuth](),
-	)
-
-	sendResponse := nodes.NewWorkflow(
-		converter.NewConverterNode(c.UserFieldsToResponse),
-		web.NewDataResponseNode(),
+		crud.NewCreateModelNode[models.UserAuth](),
 	)
 
 	return nodes.NewWorkflow(
-		web.NewJSONBodyParserNode[createUserInput](),
 		nodes.NewSplitWorkflowNode(
 			createUser,
 			createUserAuth,
-			sendResponse,
 		),
+	)
+}
+
+func CreateUserEndpoint() nodes.Workflow {
+	c := newUserConverter()
+
+	return nodes.NewWorkflow(
+		web.NewJSONBodyParserNode[createUserInput](),
+		CreateUserWorkflow(),
+		converter.NewConverterNode(c.UserFieldsToResponse),
+		web.NewDataResponseNode(),
 	)
 }

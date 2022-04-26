@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/auth"
 	"github.com/mhogar/kiwi/nodes/converter"
@@ -39,13 +40,24 @@ func UpdateUserAuthWorkflow() nodes.Workflow {
 	c := newUserConverter()
 	v := newUserValidator()
 
+	//TODO: delete all other user sessions (requires queries with AND)
+
 	return nodes.NewWorkflow(
-		web.NewJSONBodyParserNode[updateUserAuthInput](),
-		converter.NewConverterNode(c.SetUsernameFromParams),
-		auth.NewAuthenticateNode[UserAuth](),
+		auth.NewAuthenticateNode[models.UserAuth](),
 		validator.NewValidatorNode(v.ValidatePasswordComplexity),
 		converter.NewConverterNode(c.UserAuthFieldsToUserAuth),
-		crud.NewUpdateModelNode[UserAuth](""),
+		crud.NewUpdateModelNode[models.UserAuth](""),
+	)
+}
+
+func UpdateUserAuthEndpoint() nodes.Workflow {
+	c := newUserConverter()
+
+	return nodes.NewWorkflow(
+		web.SetSessionContextFromAuthorizationHeaderWorkflow[models.Session](),
+		web.NewJSONBodyParserNode[updateUserAuthInput](),
+		converter.NewConverterNode(c.SetUsernameFromSession),
+		UpdateUserAuthWorkflow(),
 		web.NewSuccessResponseNode(),
 	)
 }

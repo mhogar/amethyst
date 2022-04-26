@@ -53,10 +53,10 @@ func (h Handle[T]) Read(where *query.WhereClause) ([]*T, error) {
 	return models, nil
 }
 
-func (h Handle[T]) ReadUnique(val any) (*T, error) {
+func (h Handle[T]) ReadUnique(identifier any) (*T, error) {
 	m := adapter.CreateReflectModel[T]()
 
-	models, err := h.Read(query.Where(m.UniqueField(), "=", val))
+	models, err := h.Read(query.Where(m.UniqueField(), "=", identifier))
 	if err != nil {
 		return nil, err
 	}
@@ -75,11 +75,14 @@ func (h Handle[T]) Update(model *T) (bool, error) {
 	return h.Adapter.Update(m)
 }
 
-func (h Handle[T]) Delete(model *T) (bool, error) {
+func (h Handle[T]) Delete(where *query.WhereClause) (bool, error) {
 	m := adapter.CreateReflectModel[T]()
-	m.SetModel(model)
+	return h.Adapter.Delete(m, where)
+}
 
-	return h.Adapter.Delete(m)
+func (h Handle[T]) DeleteUnique(identifier any) (bool, error) {
+	m := adapter.CreateReflectModel[T]()
+	return h.Delete(query.Where(m.UniqueField(), "=", identifier))
 }
 
 func (h Handle[T]) readModel(itr adapter.DataIterator, m adapter.ReflectModel) (*T, error) {

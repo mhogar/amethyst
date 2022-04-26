@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/mhogar/kiwi/example/user"
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/auth"
 	"github.com/mhogar/kiwi/nodes/converter"
@@ -30,10 +30,10 @@ func CreateSessionWorkflow() nodes.Workflow {
 	c := newSessionConverter()
 
 	return nodes.NewWorkflow(
-		auth.NewAuthenticateNode[user.UserAuth](),
-		user.GetUserWorkflow(""),
+		auth.NewAuthenticateNode[models.UserAuth](),
+		crud.NewReadUniqueModelNode[models.User]("invalid username and/or password"),
 		converter.NewConverterNode(c.UserToSession),
-		crud.NewCreateModelNode[Session](),
+		crud.NewCreateModelNode[models.Session](),
 	)
 }
 

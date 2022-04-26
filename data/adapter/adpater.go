@@ -20,5 +20,5 @@ type DataAdapter interface {
 	Select(model ReflectModel, where *query.WhereClause) (DataIterator, error)
 	Insert(model ReflectModel) error
 	Update(model ReflectModel) (bool, error)
-	Delete(model ReflectModel) (bool, error)
+	Delete(model ReflectModel, where *query.WhereClause) (bool, error)
 }

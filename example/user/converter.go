@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/mhogar/kiwi/common"
 	"github.com/mhogar/kiwi/dependencies"
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes/converter"
 	"github.com/mhogar/kiwi/nodes/web"
 )
@@ -19,7 +20,7 @@ func newUserConverter() userConverter {
 
 func (c userConverter) UserFieldsToUser(_ interface{}, val any) (any, error) {
 	user := val.(UserFields)
-	return NewUser(user.GetUsername(), user.GetRank()), nil
+	return models.NewUser(user.GetUsername(), user.GetRank()), nil
 }
 
 func (c userConverter) UserAuthFieldsToUserAuth(_ interface{}, val any) (any, error) {
@@ -30,7 +31,7 @@ func (c userConverter) UserAuthFieldsToUserAuth(_ interface{}, val any) (any, er
 		return nil, common.ChainError("error hashing password", err)
 	}
 
-	return NewUserAuth(user.GetUsername(), hash), nil
+	return models.NewUserAuth(user.GetUsername(), hash), nil
 }
 
 func (userConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error) {
@@ -39,14 +40,22 @@ func (userConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error
 	return user, nil
 }
 
-func (userConverter) NewUserFromParams(ctx interface{}, _ any) (any, error) {
-	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
-	return NewUser(username, 0), nil
+func (userConverter) SetUsernameFromSession(ctx interface{}, val any) (any, error) {
+	user := val.(UsernameField)
+	session := ctx.(web.HTTPRouterContext).GetSession().(*models.Session)
+
+	user.SetUsername(session.Username)
+	return user, nil
 }
 
-func (userConverter) NewUserAuthFromParams(ctx interface{}, _ any) (any, error) {
+func (userConverter) EmptyUserFromParams(ctx interface{}, _ any) (any, error) {
 	username := ctx.(web.HTTPRouterContext).GetParams().ByName("username")
-	return NewUserAuth(username, nil), nil
+	return models.NewUser(username, 0), nil
+}
+
+func (userConverter) EmptyUserFromSession(ctx interface{}, _ any) (any, error) {
+	session := ctx.(web.HTTPRouterContext).GetSession().(*models.Session)
+	return models.NewUser(session.Username, 0), nil
 }
 
 func (userConverter) UserFieldsToResponse(_ interface{}, val any) (any, error) {
@@ -58,12 +67,12 @@ func (userConverter) UserFieldsToResponse(_ interface{}, val any) (any, error) {
 }
 
 func (userConverter) UserToResponse(_ interface{}, val any) (any, error) {
-	user := val.(*User)
+	user := val.(*models.User)
 	return newUserResponse(user), nil
 }
 
 func (userConverter) UsersToResponse(_ interface{}, val any) (any, error) {
-	users := val.([]*User)
+	users := val.([]*models.User)
 	res := make([]UserResponse, len(users))
 
 	for i, user := range users {

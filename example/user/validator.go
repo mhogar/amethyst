@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/mhogar/kiwi/common"
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/validator"
 )
@@ -18,7 +19,7 @@ func (v userValidator) ValidatePasswordComplexity(_ interface{}, val interface{}
 }
 
 func (userValidator) ValidateUser(_ interface{}, val any) (*validator.ValidationErrors, error) {
-	user := val.(*User)
+	user := val.(*models.User)
 	verrs := &validator.ValidationErrors{}
 
 	verrs.Merge(validator.ValidateLength("username", user.Username, 5, 30))
@@ -28,7 +29,7 @@ func (userValidator) ValidateUser(_ interface{}, val any) (*validator.Validation
 }
 
 func (userValidator) ValidateUserUnique(ctx interface{}, val any) (*validator.ValidationErrors, error) {
-	user := val.(*User)
+	user := val.(*models.User)
 
 	verrs, err := validator.ValidateUniqueField(user, ctx.(nodes.Context).GetDataAdapter(), "already in use by another user")
 	if err != nil {

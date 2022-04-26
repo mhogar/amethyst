@@ -6,8 +6,23 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mhogar/kiwi/nodes"
+	"github.com/mhogar/kiwi/nodes/crud"
 	"github.com/mhogar/kiwi/nodes/session"
 )
+
+type SessionToken struct {
+	ID uuid.UUID
+}
+
+func NewSessionToken(id uuid.UUID) SessionToken {
+	return SessionToken{
+		ID: id,
+	}
+}
+
+func (t SessionToken) GetIdentifier() any {
+	return t.ID
+}
 
 type ParseTokenFromAuthorizationHeaderNode struct{}
 
@@ -28,13 +43,13 @@ func (ParseTokenFromAuthorizationHeaderNode) Run(ctx interface{}, input any) (an
 		return nil, nodes.ClientError(errors.New("bearer token was in an invalid format"))
 	}
 
-	return token, nil
+	return NewSessionToken(token), nil
 }
 
 func SetSessionContextFromAuthorizationHeaderWorkflow[Model session.Session]() nodes.Workflow {
 	return nodes.NewWorkflow(
 		NewParseTokenFromAuthorizationHeaderNode(),
-		session.GetSessionWorkflow[Model]("bearer token invalid or expired"),
+		crud.NewReadUniqueModelNode[Model]("bearer token invalid or expired"),
 		session.NewSetSessionContextNode(),
 	)
 }

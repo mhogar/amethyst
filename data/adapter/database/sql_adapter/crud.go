@@ -50,11 +50,11 @@ func (a *SQLAdapter) Update(model adapter.ReflectModel) (bool, error) {
 	return count > 0, nil
 }
 
-func (a *SQLAdapter) Delete(model adapter.ReflectModel) (bool, error) {
-	script := a.SQLDriver.BuildDeleteStatement(model)
+func (a *SQLAdapter) Delete(model adapter.ReflectModel, where *query.WhereClause) (bool, error) {
+	script, values := a.SQLDriver.BuildDeleteStatement(model, where)
 
 	ctx, cancel := a.ContextFactory.CreateStandardTimeoutContext()
-	res, err := a.DB.ExecContext(ctx, script, model.UniqueValue())
+	res, err := a.DB.ExecContext(ctx, script, values...)
 	defer cancel()
 
 	if err != nil {

@@ -18,22 +18,22 @@ func createRouter(adapter adapter.DataAdapter) *httprouter.Router {
 
 	// user routes
 	r.GET("/user",
-		web.NewHandler(adapter, user.GetUsersWorkflow()).ServeHTTPRouter,
+		web.NewHandler(adapter, user.GetUserEndpoint()).ServeHTTPRouter,
 	)
 	r.GET("/user/:username",
 		web.NewHandler(adapter, user.GetUserEndpoint()).ServeHTTPRouter,
 	)
 	r.POST("/user",
-		web.NewHandler(adapter, user.CreateUserWorkflow()).ServeHTTPRouter,
+		web.NewHandler(adapter, user.CreateUserEndpoint()).ServeHTTPRouter,
 	)
-	r.PUT("/user/:username",
-		web.NewHandler(adapter, user.UpdateUserWorkflow()).ServeHTTPRouter,
+	r.PUT("/user",
+		web.NewHandler(adapter, user.UpdateUserEndpoint()).ServeHTTPRouter,
 	)
-	r.PATCH("/user/:username/password",
-		web.NewHandler(adapter, user.UpdateUserAuthWorkflow()).ServeHTTPRouter,
+	r.PATCH("/user/password",
+		web.NewHandler(adapter, user.UpdateUserAuthEndpoint()).ServeHTTPRouter,
 	)
-	r.DELETE("/user/:username",
-		web.NewHandler(adapter, user.DeleteUserWorkflow()).ServeHTTPRouter,
+	r.DELETE("/user",
+		web.NewHandler(adapter, user.DeleteUserEndpoint()).ServeHTTPRouter,
 	)
 
 	// session routes

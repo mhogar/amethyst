@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/converter"
 	"github.com/mhogar/kiwi/nodes/crud"
@@ -9,7 +10,7 @@ import (
 )
 
 type updateUserInput struct {
-	Username string `json:"username"`
+	Username string `json:"username,omitempty"`
 	Rank     int    `json:"rank"`
 }
 
@@ -30,11 +31,20 @@ func UpdateUserWorkflow() nodes.Workflow {
 	v := newUserValidator()
 
 	return nodes.NewWorkflow(
-		web.NewJSONBodyParserNode[updateUserInput](),
-		converter.NewConverterNode(c.SetUsernameFromParams),
 		converter.NewConverterNode(c.UserFieldsToUser),
 		validator.NewValidatorNode(v.ValidateUser),
-		crud.NewUpdateModelNode[User]("user with username not found"),
+		crud.NewUpdateModelNode[models.User]("user with username not found"),
+	)
+}
+
+func UpdateUserEndpoint() nodes.Workflow {
+	c := newUserConverter()
+
+	return nodes.NewWorkflow(
+		web.SetSessionContextFromAuthorizationHeaderWorkflow[models.Session](),
+		web.NewJSONBodyParserNode[updateUserInput](),
+		converter.NewConverterNode(c.SetUsernameFromSession),
+		UpdateUserWorkflow(),
 		converter.NewConverterNode(c.UserToResponse),
 		web.NewDataResponseNode(),
 	)

@@ -1,11 +1,11 @@
-package user
+package models
 
 type User struct {
 	Username string `kiwi:"username,unique"`
 	Rank     int    `kiwi:"rank"`
 }
 
-func (u *User) GetUsername() string {
+func (u User) GetIdentifier() any {
 	return u.Username
 }
 

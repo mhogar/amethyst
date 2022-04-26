@@ -10,6 +10,11 @@ import (
 
 type ScriptBuilder struct{}
 
+func (ScriptBuilder) buildWhereString(model adapter.ReflectModel, where *query.WhereClause) string {
+	//TODO: implement AND/OR
+	return fmt.Sprintf(`t1."%s" %s $1`, where.Field, where.Operator)
+}
+
 // Build a select query using the reflection model.
 // Note that the model's name and fields are obtained using reflection and therefore sql injection is not possible.
 func (s ScriptBuilder) BuildSelectQuery(model adapter.ReflectModel, where *query.WhereClause) (string, []any) {
@@ -27,11 +32,6 @@ func (s ScriptBuilder) BuildSelectQuery(model adapter.ReflectModel, where *query
 	return fmt.Sprintf(
 		script, strings.Join(model.Fields, `", t1."`), model.Name,
 	), values
-}
-
-func (ScriptBuilder) buildWhereString(model adapter.ReflectModel, where *query.WhereClause) string {
-	//TODO: implement AND/OR
-	return fmt.Sprintf(`t1."%s" %s $1`, where.Field, where.Operator)
 }
 
 // Build an insert statement using the reflection model.
@@ -86,13 +86,18 @@ func (ScriptBuilder) buildSetString(model adapter.ReflectModel) string {
 
 // Build a delete statement using the reflection model.
 // Note that the model's name and fields are obtained using reflection and therefore sql injection is not possible.
-func (ScriptBuilder) BuildDeleteStatement(model adapter.ReflectModel) string {
+func (s ScriptBuilder) BuildDeleteStatement(model adapter.ReflectModel, where *query.WhereClause) (string, []any) {
 	script := `
 		DELETE FROM "%s" t1
-			WHERE t1."%s" = $1
 	`
+	values := []any{}
+
+	if where != nil {
+		script += fmt.Sprintf("WHERE %s", s.buildWhereString(model, where))
+		values = []any{where.Value}
+	}
 
 	return fmt.Sprintf(
-		script, model.Name, model.UniqueField(),
-	)
+		script, model.Name,
+	), values
 }

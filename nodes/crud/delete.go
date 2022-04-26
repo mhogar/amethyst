@@ -1,35 +1,26 @@
 package crud
 
 import (
-	"errors"
-
 	"github.com/mhogar/kiwi/common"
 	"github.com/mhogar/kiwi/data"
+	"github.com/mhogar/kiwi/data/query"
 	"github.com/mhogar/kiwi/nodes"
 )
 
-type DeleteModelNode[Model any] struct {
-	NotFoundMessage string
+type DeleteModelsNode[Model any] struct{}
+
+func NewDeleteModelsNode[Model any]() DeleteModelsNode[Model] {
+	return DeleteModelsNode[Model]{}
 }
 
-func NewDeleteModelNode[Model any](notFoundMessage string) DeleteModelNode[Model] {
-	return DeleteModelNode[Model]{
-		NotFoundMessage: notFoundMessage,
-	}
-}
-
-func (n DeleteModelNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) {
-	model := input.(*Model)
+func (n DeleteModelsNode[Model]) Run(ctx interface{}, input any) (any, *nodes.Error) {
+	where := input.(*query.WhereClause)
 	handle := data.GetHandle[Model](ctx.(nodes.Context).GetDataAdapter())
 
-	exists, err := handle.Delete(model)
+	_, err := handle.Delete(where)
 	if err != nil {
 		return nil, nodes.InternalError(common.ChainError("error deleting model", err))
 	}
 
-	if !exists {
-		return nil, nodes.ClientError(errors.New(n.NotFoundMessage))
-	}
-
-	return model, nil
+	return input, nil
 }

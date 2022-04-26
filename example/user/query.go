@@ -1,6 +1,10 @@
 package user
 
-import "github.com/mhogar/kiwi/data/query"
+import (
+	"github.com/mhogar/kiwi/data/query"
+	"github.com/mhogar/kiwi/example/models"
+	"github.com/mhogar/kiwi/nodes/web"
+)
 
 type UserQueryBuilder struct{}
 
@@ -8,7 +12,7 @@ func NewUserQueryBuilder() UserQueryBuilder {
 	return UserQueryBuilder{}
 }
 
-func (UserQueryBuilder) GetUserByUsername(_ interface{}, input any) (*query.WhereClause, error) {
-	user := input.(UsernameGetter)
-	return query.Where("username", "=", user.GetUsername()), nil
+func (UserQueryBuilder) FindUserSessions(ctx interface{}, _ any) (*query.WhereClause, error) {
+	session := ctx.(web.HTTPContext).GetSession().(*models.Session)
+	return query.Where("username", "=", session.Username), nil
 }

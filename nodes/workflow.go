@@ -37,5 +37,5 @@ func (w SplitWorkflowNode) Run(ctx interface{}, input any) (any, *Error) {
 		}
 	}
 
-	return nil, nil
+	return input, nil
 }

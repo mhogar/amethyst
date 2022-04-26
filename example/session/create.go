@@ -31,7 +31,7 @@ func CreateSessionWorkflow() nodes.Workflow {
 
 	return nodes.NewWorkflow(
 		auth.NewAuthenticateNode[user.UserAuth](),
-		user.GetUserWorkflow(),
+		user.GetUserWorkflow(""),
 		converter.NewConverterNode(c.UserToSession),
 		crud.NewCreateModelNode[Session](),
 	)

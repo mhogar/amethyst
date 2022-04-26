@@ -5,6 +5,10 @@ type User struct {
 	Rank     int    `kiwi:"rank"`
 }
 
+func (u *User) GetUsername() string {
+	return u.Username
+}
+
 type UserAuth struct {
 	Username     string `kiwi:"username,unique"`
 	PasswordHash []byte `kiwi:"password_hash"`

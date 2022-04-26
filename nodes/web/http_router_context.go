@@ -14,18 +14,18 @@ type HTTPRouterContext interface {
 }
 
 type HTTPRouterContextImpl struct {
-	HTTPContextImpl
+	*HTTPContextImpl
 
 	Params httprouter.Params
 }
 
-func NewHTTPRouterContext(adapter adapter.DataAdapter, w http.ResponseWriter, req *http.Request, params httprouter.Params) HTTPRouterContextImpl {
-	return HTTPRouterContextImpl{
+func NewHTTPRouterContext(adapter adapter.DataAdapter, w http.ResponseWriter, req *http.Request, params httprouter.Params) *HTTPRouterContextImpl {
+	return &HTTPRouterContextImpl{
 		HTTPContextImpl: NewHTTPContext(adapter, w, req),
 		Params:          params,
 	}
 }
 
-func (c HTTPRouterContextImpl) GetParams() httprouter.Params {
+func (c *HTTPRouterContextImpl) GetParams() httprouter.Params {
 	return c.Params
 }

@@ -18,12 +18,12 @@ func GetUsersWorkflow() nodes.Workflow {
 	)
 }
 
-func GetUserWorkflow() nodes.Workflow {
+func GetUserWorkflow(notFoundMessage string) nodes.Workflow {
 	b := NewUserQueryBuilder()
 
 	return nodes.NewWorkflow(
 		query.NewBuildQueryNode(b.GetUserByUsername),
-		crud.NewReadModelNode[User](),
+		crud.NewReadModelNode[User](notFoundMessage),
 	)
 }
 
@@ -32,7 +32,7 @@ func GetUserEndpoint() nodes.Workflow {
 
 	return nodes.NewWorkflow(
 		converter.NewConverterNode(c.NewUserFromParams),
-		GetUserWorkflow(),
+		GetUserWorkflow("user with username not found"),
 		converter.NewConverterNode(c.UserToResponse),
 		web.NewDataResponseNode(),
 	)

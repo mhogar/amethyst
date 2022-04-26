@@ -16,3 +16,8 @@ func (UserQueryBuilder) FindUserSessions(ctx interface{}, _ any) (*query.WhereCl
 	session := ctx.(web.HTTPContext).GetSession().(*models.Session)
 	return query.Where("username", "=", session.Username), nil
 }
+
+func (UserQueryBuilder) FindOtherUserSessions(ctx interface{}, _ any) (*query.WhereClause, error) {
+	session := ctx.(web.HTTPContext).GetSession().(*models.Session)
+	return query.Where("username", "=", session.Username).And(query.Where("token", "!=", session.Token)), nil
+}

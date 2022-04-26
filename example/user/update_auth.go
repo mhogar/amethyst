@@ -6,6 +6,7 @@ import (
 	"github.com/mhogar/kiwi/nodes/auth"
 	"github.com/mhogar/kiwi/nodes/converter"
 	"github.com/mhogar/kiwi/nodes/crud"
+	"github.com/mhogar/kiwi/nodes/query"
 	"github.com/mhogar/kiwi/nodes/validator"
 	"github.com/mhogar/kiwi/nodes/web"
 )
@@ -37,16 +38,27 @@ func (u *updateUserAuthInput) GetNewPassword() string {
 }
 
 func UpdateUserAuthWorkflow() nodes.Workflow {
+	b := NewUserQueryBuilder()
 	c := newUserConverter()
 	v := newUserValidator()
 
-	//TODO: delete all other user sessions (requires queries with AND)
-
-	return nodes.NewWorkflow(
+	updateAuth := nodes.NewWorkflow(
 		auth.NewAuthenticateNode[models.UserAuth](),
 		validator.NewValidatorNode(v.ValidatePasswordComplexity),
 		converter.NewConverterNode(c.UserAuthFieldsToUserAuth),
 		crud.NewUpdateModelNode[models.UserAuth](""),
+	)
+
+	deleteOtherSessions := nodes.NewWorkflow(
+		query.NewBuildQueryNode(b.FindOtherUserSessions),
+		crud.NewDeleteModelsNode[models.Session](),
+	)
+
+	return nodes.NewWorkflow(
+		nodes.NewSplitWorkflowNode(
+			updateAuth,
+			deleteOtherSessions,
+		),
 	)
 }
 

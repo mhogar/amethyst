@@ -10,9 +10,23 @@ import (
 
 type ScriptBuilder struct{}
 
-func (ScriptBuilder) buildWhereString(model adapter.ReflectModel, where *query.WhereClause) string {
-	//TODO: implement AND/OR
-	return fmt.Sprintf(`t1."%s" %s $1`, where.Field, where.Operator)
+func (ScriptBuilder) buildWhereString(model adapter.ReflectModel, where *query.WhereClause) (string, []any) {
+	index := 0
+	script := "WHERE "
+	values := []any{}
+
+	for {
+		index += 1
+		script += fmt.Sprintf(`t1."%s" %s $%d`, where.Field, where.Operator, index)
+		values = append(values, where.Value)
+
+		if where.Join == nil {
+			return script, values
+		}
+
+		script += fmt.Sprintf(` %s `, where.JoinType)
+		where = where.Join
+	}
 }
 
 // Build a select query using the reflection model.
@@ -25,8 +39,9 @@ func (s ScriptBuilder) BuildSelectQuery(model adapter.ReflectModel, where *query
 	values := []any{}
 
 	if where != nil {
-		script += fmt.Sprintf("WHERE %s", s.buildWhereString(model, where))
-		values = []any{where.Value}
+		s, v := s.buildWhereString(model, where)
+		script += s
+		values = v
 	}
 
 	return fmt.Sprintf(
@@ -93,8 +108,9 @@ func (s ScriptBuilder) BuildDeleteStatement(model adapter.ReflectModel, where *q
 	values := []any{}
 
 	if where != nil {
-		script += fmt.Sprintf("WHERE %s", s.buildWhereString(model, where))
-		values = []any{where.Value}
+		s, v := s.buildWhereString(model, where)
+		script += s
+		values = v
 	}
 
 	return fmt.Sprintf(

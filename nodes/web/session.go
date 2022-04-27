@@ -46,7 +46,7 @@ func (ParseTokenFromAuthorizationHeaderNode) Run(ctx interface{}, input any) (an
 	return NewSessionToken(token), nil
 }
 
-func SetSessionContextFromAuthorizationHeaderWorkflow[Model session.Session]() nodes.Workflow {
+func SetSessionContextFromAuthorizationHeaderWorkflow[Model any]() nodes.Workflow {
 	return nodes.NewWorkflow(
 		NewParseTokenFromAuthorizationHeaderNode(),
 		crud.NewReadUniqueModelNode[Model]("bearer token invalid or expired"),

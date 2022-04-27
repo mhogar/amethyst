@@ -8,14 +8,14 @@ import (
 type SessionContext interface {
 	nodes.Context
 
-	GetSession() Session
-	SetSession(val Session)
+	GetSession() any
+	SetSession(val any)
 }
 
 type SessionContextImpl struct {
 	*nodes.ContextImpl
 
-	Session Session
+	Session any
 }
 
 func NewSessionContext(adapter adapter.DataAdapter) *SessionContextImpl {
@@ -24,11 +24,11 @@ func NewSessionContext(adapter adapter.DataAdapter) *SessionContextImpl {
 	}
 }
 
-func (c *SessionContextImpl) GetSession() Session {
+func (c *SessionContextImpl) GetSession() any {
 	return c.Session
 }
 
-func (c *SessionContextImpl) SetSession(val Session) {
+func (c *SessionContextImpl) SetSession(val any) {
 	c.Session = val
 }
 
@@ -39,6 +39,6 @@ func NewSetSessionContextNode() SetSessionContextNode {
 }
 
 func (SetSessionContextNode) Run(ctx interface{}, input any) (any, *nodes.Error) {
-	ctx.(SessionContext).SetSession(input.(Session))
+	ctx.(SessionContext).SetSession(input.(any))
 	return input, nil
 }

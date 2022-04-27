@@ -1,7 +1,6 @@
 package session
 
 import (
-	"github.com/google/uuid"
 	"github.com/mhogar/kiwi/example/models"
 )
 
@@ -19,8 +18,4 @@ func (sessionConverter) UserToSession(_ interface{}, val any) (any, error) {
 func (sessionConverter) SessionToResponse(_ interface{}, val any) (any, error) {
 	session := val.(*models.Session)
 	return newSessionResponse(session), nil
-}
-
-func (sessionConverter) NewSessionFromToken(_ interface{}, val any) (any, error) {
-	return models.CreateSession(val.(uuid.UUID), "", 0), nil
 }

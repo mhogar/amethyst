@@ -5,6 +5,7 @@ import (
 	"github.com/mhogar/kiwi/dependencies"
 	"github.com/mhogar/kiwi/example/models"
 	"github.com/mhogar/kiwi/nodes/converter"
+	"github.com/mhogar/kiwi/nodes/session"
 	"github.com/mhogar/kiwi/nodes/web"
 )
 
@@ -42,7 +43,7 @@ func (userConverter) SetUsernameFromParams(ctx interface{}, val any) (any, error
 
 func (userConverter) SetUsernameFromSession(ctx interface{}, val any) (any, error) {
 	user := val.(UsernameField)
-	session := ctx.(web.HTTPRouterContext).GetSession().(*models.Session)
+	session := ctx.(session.SessionContext).GetSession().(*models.Session)
 
 	user.SetUsername(session.Username)
 	return user, nil
@@ -54,7 +55,7 @@ func (userConverter) EmptyUserFromParams(ctx interface{}, _ any) (any, error) {
 }
 
 func (userConverter) EmptyUserFromSession(ctx interface{}, _ any) (any, error) {
-	session := ctx.(web.HTTPRouterContext).GetSession().(*models.Session)
+	session := ctx.(session.SessionContext).GetSession().(*models.Session)
 	return models.NewUser(session.Username, 0), nil
 }
 

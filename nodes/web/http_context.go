@@ -4,12 +4,10 @@ import (
 	"net/http"
 
 	"github.com/mhogar/kiwi/data/adapter"
-	"github.com/mhogar/kiwi/nodes"
 	"github.com/mhogar/kiwi/nodes/session"
 )
 
 type HTTPContext interface {
-	nodes.Context
 	session.SessionContext
 
 	GetRequest() *http.Request
@@ -17,8 +15,7 @@ type HTTPContext interface {
 }
 
 type HTTPContextImpl struct {
-	nodes.ContextImpl
-	session.SessionContextImpl
+	*session.SessionContextImpl
 
 	Request        *http.Request
 	ResponseWriter http.ResponseWriter
@@ -26,9 +23,9 @@ type HTTPContextImpl struct {
 
 func NewHTTPContext(adapter adapter.DataAdapter, w http.ResponseWriter, req *http.Request) *HTTPContextImpl {
 	return &HTTPContextImpl{
-		ContextImpl:    nodes.NewContext(adapter),
-		ResponseWriter: w,
-		Request:        req,
+		SessionContextImpl: session.NewSessionContext(adapter),
+		ResponseWriter:     w,
+		Request:            req,
 	}
 }
 
